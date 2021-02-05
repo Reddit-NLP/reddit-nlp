@@ -9,6 +9,7 @@ class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
 
+
         container = tk.Frame(self)
         
         self.frames = {}
@@ -19,7 +20,6 @@ class App(tk.Tk):
             frame = f(parent = container, controller = self)
             self.frames[frame_name] = frame
 
-            frame.grid(row=0, column=0, sticky="nsew")
         self.show_frame("Dashboard")
 
     #function to raise a specific frame

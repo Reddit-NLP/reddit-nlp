@@ -2,7 +2,7 @@ import tkinter as tk
 
 
 class Buttons(tk.Button):
-    def __init__(self, master, text, font, color, active_color, function, **kw):
+    def __init__(self, master, text, font, color, active_color, **kw):
         tk.Button.__init__(self, master = master, **kw)
         self.color = color
         self.active_color = active_color
@@ -10,7 +10,6 @@ class Buttons(tk.Button):
         self["font"] = font
         self["foreground"] = color
         self["activeforeground"] = active_color
-        self["command"] = function
 
         self.bind("<Enter>", self.on_enter)
         self.bind("<Leave>", self.on_leave)
