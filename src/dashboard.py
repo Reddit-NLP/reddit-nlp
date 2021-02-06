@@ -1,31 +1,39 @@
 import tkinter as tk
 import app
 import buttons
-import navbar
+import side_navbar
+import top_navbar
 import app
+import side_listbox
 
-x=600
-y=400
 
-#Button class def __init__(self, master, text, font, color, active_color, function):
 class Dashboard(tk.Frame):
     def __init__(self, parent, controller):
         self.parent=parent
+
+        #change this to change window dimensions
+        self.x = 800
+        self.y = 500
+
         tk.Frame.__init__(self, parent)
         self.controller = controller 
-        self.configure(bg="#f2f3f4")
+        self.configure(bg="#000000")
+        controller.geometry("%dx%d" % (self.x, self.y))
+        
+        #side navbar
+        snavbar_frame = side_navbar.SideNavbar(controller, self.x, self.y)
+        #top_navbar
+        tnavbar_frame = top_navbar.TopNavbar(controller, self.x, self.y)
 
-        controller.geometry("%dx%d" % (x, y))
-
-        navbar_frame = navbar.Navbar(controller, x, y)
-
-        navbar_frame.frame.pack(anchor="w")
 
 
 
-        #button_font1 = tk.font.Font(family="PT Sand", size=20)
-        #exit_button = b.Buttons(self.controller, "Exit", button_font1, "#7F39FB", "#FB3552", None)
-        #exit_button.pack()
-
+        """had to break the side navbar into two to account for the way
+        tkinter organizes its grid placements"""
+        snavbar_frame.frame2.grid(row=0, column=0)
+        snavbar_frame.frame.grid(row=1, column=0)
+        tnavbar_frame.frame.grid(row=0, column=1)
+        
+        
 
         

@@ -1,12 +1,16 @@
 import tkinter as tk
-
+import tkinter.font as f
 
 class Buttons(tk.Button):
     def __init__(self, master, text, font, color, active_color, **kw):
         tk.Button.__init__(self, master = master, **kw)
+
         self.color = color
         self.active_color = active_color
+        self.nav_highlighter = "#6200EE"
+
         self["text"] = text
+        font = f.Font(family=font)
         self["font"] = font
         self["foreground"] = color
         self["activeforeground"] = active_color
@@ -19,6 +23,9 @@ class Buttons(tk.Button):
         
     def on_leave(self, e):
         self["foreground"] = self.color
+
+
+
 
         
         

@@ -7,9 +7,8 @@ import start as st
 class App(tk.Tk):
     #initializes the App 
     def __init__(self, *args, **kwargs):
+        
         tk.Tk.__init__(self, *args, **kwargs)
-
-
         container = tk.Frame(self)
         
         self.frames = {}
@@ -20,15 +19,19 @@ class App(tk.Tk):
             frame = f(parent = container, controller = self)
             self.frames[frame_name] = frame
 
-        self.show_frame("Dashboard")
+        self.show_frame("Dashboard")  
 
     #function to raise a specific frame
     def show_frame(self, frame_name):
         frame = self.frames[frame_name]
         frame.tkraise()
 
+  
+
 #starts the mainloop
 if __name__=="__main__":
-    app = App()
+    app = App() 
     app.mainloop()
+
+
 
