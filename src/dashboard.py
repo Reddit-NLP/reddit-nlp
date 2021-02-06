@@ -22,13 +22,16 @@ class Dashboard(tk.Frame):
         #top_navbar buttons
         download_button = buttons.Buttons(self, lambda: printme(), 
         "Download New Data", "PingFang TC", main_color, highlight_color)
+        download_button.configure(padx=10, pady=10)
 
         create_report_button = buttons.Buttons(self, 
         lambda: controller.show_frame("CreateReportForm"), 
         "Create New Report", "PingFang TC", main_color, highlight_color)
+        create_report_button.configure(padx=10, pady=10)
         
         lexicon_button = buttons.Buttons(self, lambda: printme() ,
         "Create New Lexicon", "PingFang TC", main_color, highlight_color)
+        create_report_button.configure(padx=10, pady=10)
 
         #side navbar
         side_nav_width = self.x * .15
