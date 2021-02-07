@@ -38,12 +38,10 @@ class App(tk.Tk):
             print("loaded default corpus from file")
         except FileNotFoundError:
             default_corpus = RedditCorpus("default-corpus", ["gaming"])
-            default_corpus.write()
             print("default corpus didn't exist, made a new one")
 
         if not default_corpus.compiled:
             default_corpus.compile(os.environ["CLIENT_ID"], os.environ["CLIENT_SECRET"])
-        default_corpus.write()
 
         default_report = Report(default_corpus.name, [])
         default_report.run()

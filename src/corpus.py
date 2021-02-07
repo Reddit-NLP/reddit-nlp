@@ -56,6 +56,8 @@ class RedditCorpus(Corpus):
         self.start_time = start_time or datetime.datetime.now()
         self.end_time = end_time or datetime.datetime.now()
         self.comments_pickle_path = os.path.join(self.directory, "comments.pickle")
+        self.write()
+
     def write(self):
         if not os.path.exists(self.directory):
             os.makedirs(self.directory, exist_ok=True)
@@ -94,6 +96,7 @@ class RedditCorpus(Corpus):
         with open(self.comments_pickle_path, "wb") as pickle_file:
             pickle.dump(comments, pickle_file)
         self.downloaded = True
+        self.write()
 
     def iterate_documents(self):
         with open(self.comments_pickle_path, "rb") as pickle_file:
