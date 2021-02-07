@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.font as f
+import app
 
 
 class SideListbox(tk.Listbox):

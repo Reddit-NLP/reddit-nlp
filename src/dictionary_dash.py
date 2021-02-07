@@ -6,7 +6,7 @@ import side_listbox as listbox
 main_color = "#30009C"
 highlight_color = "#FB3552"
 
-class Dashboard(tk.Frame):
+class DictionaryDashboard(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.x = 800
@@ -19,19 +19,6 @@ class Dashboard(tk.Frame):
         top_frame.configure(bg="#f2f3f4")
         top_frame.pack_propagate(False)
         
-        #top_navbar buttons
-        download_button = buttons.Buttons(self, lambda: printme(), 
-        "Download New Data", "PingFang TC", main_color, highlight_color)
-        download_button.configure(padx=10, pady=10)
-
-        create_report_button = buttons.Buttons(self, 
-        lambda: controller.show_frame("CreateReportForm"), 
-        "Create New Report", "PingFang TC", main_color, highlight_color)
-        create_report_button.configure(padx=10, pady=10)
-        
-        lexicon_button = buttons.Buttons(self, lambda: printme() ,
-        "Create New Lexicon", "PingFang TC", main_color, highlight_color)
-        lexicon_button.configure(padx=10, pady=10)
 
         #side navbar
         side_nav_width = self.x * .15
@@ -45,7 +32,7 @@ class Dashboard(tk.Frame):
         #items for navbar
         home_item = listbox.SideListbox(self, bg=main_color, width=13, exportselection=0)
         home_item.insert(0, "  Home")
-        home_item.bind('<<ListboxSelect>>', lambda x: controller.show_frame("Dashboard"))
+        home_item.bind('<<ListboxSelect>>', lambda x:controller.show_frame("Dashboard"))
 
         dictionary_item = listbox.SideListbox(self, bg=main_color, width=13, exportselection=0)
         dictionary_item.insert(0, "  Dictionaries")
@@ -55,7 +42,6 @@ class Dashboard(tk.Frame):
         reports_item.insert(0, "  Reports")
         reports_item.bind('<<ListboxSelect>>', lambda x:controller.show_frame("ReportDashboard"))
 
-
         side_frame.grid(row=1, column=0, rowspan=10)
         side_frame2.grid(row=0, column=0)
         home_item.grid(row=1, column=0)
@@ -63,13 +49,4 @@ class Dashboard(tk.Frame):
         reports_item.grid(row=3, column=0)
 
         top_frame.grid(row=0, column=1, columnspan=4)
-        download_button.grid(row=0, column=1)
-        create_report_button.grid(row=0, column=2)
-        lexicon_button.grid(row=0, column=3)
-    
-
-        
-
-
-def printme():
-    print(1)
+   

@@ -1,8 +1,11 @@
 import tkinter as tk
 import tkinter.font as font
 import sys
+import side_listbox
 import dashboard as dash
 import create_report_form as form1
+import dictionary_dash as dash2
+import report_dash as dash3
 
 class App(tk.Tk):
     #initializes the App 
@@ -18,9 +21,10 @@ class App(tk.Tk):
         self.frames = {}
         #this will contain all frames so they will be available
         #to raise
-        for f in (dash.Dashboard, form1.CreateReportForm):
-            page_name = f.__name__
-            frame = f(parent=container, controller=self)
+        for F in (dash.Dashboard, form1.CreateReportForm, dash2.DictionaryDashboard,
+        dash3.ReportDashboard):
+            page_name = F.__name__
+            frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
