@@ -35,21 +35,6 @@ class App(tk.Tk):
 
         self.show_frame("Dashboard")
         
-        # TODO: for now, create a default corpus
-
-               print("all corpora: ", Corpus.list())
-               try:
-                   default_corpus = Corpus.load("default-corpus")
-                   print("loaded default corpus from file")
-               except FileNotFoundError:
-                   default_corpus = RedditCorpus("default-corpus", ["gaming"])
-                   print("default corpus didn't exist, made a new one")
-
-               if not default_corpus.compiled:
-                   default_corpus.compile(os.environ["CLIENT_ID"], os.environ["CLIENT_SECRET"])
-
-               default_report = Report(default_corpus.name, [])
-               default_report.run()
 
         # TODO: for now, create a default corpus
 
