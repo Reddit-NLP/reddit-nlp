@@ -3,7 +3,8 @@ import tkinter as tk
 import tkinter.font as font
 import sys
 
-import corpus
+from corpus import Corpus, RedditCorpus
+from report import Report
 import dashboard as dash
 import create_report_form as form1
 
@@ -29,6 +30,24 @@ class App(tk.Tk):
 
         self.show_frame("Dashboard")  
 
+        # TODO: for now, create a default corpus
+
+        print("all corpora: ", Corpus.list())
+        try:
+            default_corpus = Corpus.load("default-corpus")
+            print("loaded default corpus from file")
+        except FileNotFoundError:
+            default_corpus = RedditCorpus("default-corpus", ["gaming"])
+            default_corpus.write()
+            print("default corpus didn't exist, made a new one")
+
+        if not default_corpus.compiled:
+            default_corpus.compile(os.environ["CLIENT_ID"], os.environ["CLIENT_SECRET"])
+        default_corpus.write()
+
+        default_report = Report(default_corpus.name, [])
+        default_report.run()
+
     #function to raise a specific frame
     def show_frame(self, frame_name):
         frame = self.frames[frame_name]
@@ -38,22 +57,6 @@ class App(tk.Tk):
 
 #starts the mainloop
 if __name__=="__main__":
-    # TODO: for now, create a default corpus
-
-    print(corpus.Corpus.list())
-    try:
-        default_corpus = corpus.Corpus.load("default-corpus")
-        print("loaded default corpus from file")
-    except FileNotFoundError:
-        default_corpus = corpus.RedditCorpus("default-corpus", ["gaming"])
-        default_corpus.write()
-        print("default corpus didn't exist, made a new one")
-
-    if not default_corpus.compiled:
-        default_corpus.compile(os.environ["CLIENT_ID"], os.environ["CLIENT_SECRET"])
-
-    for doc in default_corpus.iterate_documents():
-        print(doc)
 
     app = App() 
     app.mainloop()

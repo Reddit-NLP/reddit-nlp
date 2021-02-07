@@ -42,7 +42,7 @@ class Corpus(ABC):
         return [os.path.basename(path) for path in glob.iglob(os.path.join(constants.corpora_path, "*"))]
 
     @abstractmethod
-    def iterate_documents(self) -> Generator[str, None, None]: 
+    def iterate_documents(self) -> Generator[dict, None, None]:
         pass
 
     def compile(self) -> None:
@@ -98,5 +98,7 @@ class RedditCorpus(Corpus):
     def iterate_documents(self):
         with open(self.comments_pickle_path, "rb") as pickle_file:
             for comment in pickle.load(pickle_file):
-                yield comment.body
+                yield {
+                    "body": comment.body,
+                }
 
