@@ -4,6 +4,7 @@ import numpy as np
 
 from corpus import Corpus
 
+
 class Report:
     def __init__(self, corpus_name: str, lexicon_names: List[str]):
         self.corpus_name = corpus_name

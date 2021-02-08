@@ -13,6 +13,7 @@ import praw
 
 import constants
 
+
 class Corpus(ABC):
     def __init__(self, name: str):
         self.name = name
@@ -23,13 +24,13 @@ class Corpus(ABC):
     @abstractmethod
     def write(self) -> None:
         pass
-            
+
     @staticmethod
     def load(name: str) -> Corpus:
         toml_path = os.path.join(constants.corpora_path, name, "corpus.toml")
         with open(toml_path) as toml_file:
             corpus_dict = toml.load(toml_file, _dict=dict)
-            corpus_by_type = {corpus.corpus_type: corpus for corpus in (RedditCorpus,)} # type: ignore
+            corpus_by_type = {corpus.corpus_type: corpus for corpus in (RedditCorpus,)}  # type: ignore
             return corpus_by_type[corpus_dict["type"]].from_dict(corpus_dict)
 
     @staticmethod
@@ -39,7 +40,10 @@ class Corpus(ABC):
 
     @staticmethod
     def list():
-        return [os.path.basename(path) for path in glob.iglob(os.path.join(constants.corpora_path, "*"))]
+        return [
+            os.path.basename(path)
+            for path in glob.iglob(os.path.join(constants.corpora_path, "*"))
+        ]
 
     @abstractmethod
     def iterate_documents(self) -> Generator[dict, None, None]:
@@ -48,8 +52,10 @@ class Corpus(ABC):
     def compile(self) -> None:
         self.compiled = True
 
+
 class RedditCorpus(Corpus):
     corpus_type = "reddit"
+
     def __init__(self, name: str, subreddits=None, start_time=None, end_time=None):
         super().__init__(name)
         self.subreddits = subreddits or []
@@ -78,7 +84,8 @@ class RedditCorpus(Corpus):
             corpus_dict["name"],
             corpus_dict["subreddits"],
             datetime.datetime.fromisoformat(corpus_dict["start_time"]),
-            datetime.datetime.fromisoformat(corpus_dict["end_time"]))
+            datetime.datetime.fromisoformat(corpus_dict["end_time"]),
+        )
         corpus.compiled = corpus_dict["compiled"]
         return corpus
 
@@ -86,7 +93,7 @@ class RedditCorpus(Corpus):
         reddit = praw.Reddit(
             client_id=os.environ["CLIENT_ID"],
             client_secret=os.environ["CLIENT_SECRET"],
-            user_agent="linux:org.reddit-nlp.reddit-nlp:v0.1.0 (by /u/YeetoCalrissian)"
+            user_agent="linux:org.reddit-nlp.reddit-nlp:v0.1.0 (by /u/YeetoCalrissian)",
         )
         comments = []
         for subreddit in self.subreddits:
@@ -104,4 +111,3 @@ class RedditCorpus(Corpus):
                 yield {
                     "body": comment.body,
                 }
-
