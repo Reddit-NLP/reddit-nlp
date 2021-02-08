@@ -11,12 +11,14 @@ import praw
 reddit = praw.Reddit(
     client_id=os.environ["CLIENT_ID"],
     client_secret=os.environ["CLIENT_SECRET"],
-    user_agent="linux:org.reddit-nlp.reddit-nlp:v0.1.0 (by /u/YeetoCalrissian)"
+    user_agent="linux:org.reddit-nlp.reddit-nlp:v0.1.0 (by /u/YeetoCalrissian)",
 )
 
-def date_str_to_ts(date_str: str) -> float: 
+
+def date_str_to_ts(date_str: str) -> float:
     """ISO 8601 date string to unix timestamp in seconds"""
     return time.mktime(datetime.datetime.strptime(date_str, "%Y-%m-%d").timetuple())
+
 
 start_ts = date_str_to_ts("2021-02-01")
 end_ts = date_str_to_ts("2021-02-02")
