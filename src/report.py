@@ -23,6 +23,7 @@ class Report:
 
         for document in corpus.iterate_documents():
             n += 1
+            print(document["body"])
             scores = analyzer.polarity_scores(document["body"])
             pos.append(scores["pos"])
             neu.append(scores["neu"])
@@ -45,6 +46,10 @@ class Report:
         neu_std = np.std(neu)
         neg_std = np.std(neg)
         compound_std = np.std(compound)
+
+        print(
+            "Analyzing corpus using VADER (Valence Aware Dictionary and sEntiment Reasoner)"
+        )
 
         print(f"{pos_mean=} {neu_mean=} {neg_mean=}")
         print(f"{pos_std=} {neu_std=} {neg_std=}")
