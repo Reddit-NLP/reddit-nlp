@@ -1,9 +1,12 @@
 [tool.poetry]
-name = "reddit-nlp"
+name = "pognlp"
 version = "0.1.0"
 description = ""
 authors = ["Evan Goode <egoode6@gatech.edu>", "Celine MacKe <cmacke@gatech.edu>"]
 license = "The Unlicense"
+
+[tool.poetry.scripts]
+pognlp = "pognlp.app:main"
 
 [tool.poetry.dependencies]
 python = "^3.8"

@@ -1,6 +1,6 @@
 import tkinter as tk
 
-import theme
+import pognlp.view.theme as theme
 
 
 class DictionaryDashboard(tk.Frame):

@@ -2,13 +2,14 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from typing import List
 import numpy as np
 
-from corpus import Corpus
+from pognlp.model.corpus import Corpus
 
 
 class Report:
     def __init__(self, corpus_name: str, lexicon_names: List[str]):
         self.corpus_name = corpus_name
         self.lexicon_names = lexicon_names
+        self.results = {}
 
     def run(self):
         corpus = Corpus.load(self.corpus_name)

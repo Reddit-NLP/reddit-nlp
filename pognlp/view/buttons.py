@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.font as f
 
-import theme
+import pognlp.view.theme as theme
 
 
 class Buttons(tk.Button):

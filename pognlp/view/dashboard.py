@@ -1,7 +1,7 @@
 import tkinter as tk
-import buttons
 
-import theme
+import pognlp.view.buttons as buttons
+import pognlp.view.theme as theme
 
 
 class Dashboard(tk.Frame):

@@ -11,7 +11,7 @@ import pickle
 import toml
 import praw
 
-import constants
+import pognlp.constants
 
 
 class Corpus(ABC):

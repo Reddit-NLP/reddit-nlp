@@ -4,13 +4,14 @@ import tkinter.font as font
 import sys
 
 
-from corpus import Corpus, RedditCorpus
-from report import Report
-from sidebar import Sidebar
-from dashboard import Dashboard
-from dictionary_dash import DictionaryDashboard
-from create_report_form import CreateReportForm
-from report_dash import ReportDashboard
+from pognlp.model.corpus import Corpus, RedditCorpus
+from pognlp.model.report import Report
+
+from pognlp.view.sidebar import Sidebar
+from pognlp.view.dashboard import Dashboard
+from pognlp.view.dictionary_dashboard import DictionaryDashboard
+from pognlp.view.create_report_form import CreateReportForm
+from pognlp.view.report_dashboard import ReportDashboard
 
 
 class App(tk.Tk):
@@ -73,8 +74,11 @@ class App(tk.Tk):
         frame.tkraise()
 
 
-# starts the mainloop
-if __name__ == "__main__":
-
+def main():
     app = App()
     app.mainloop()
+
+
+# starts the mainloop
+if __name__ == "__main__":
+    main()
