@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import font
 
 
-class CreateReportForm(tk.Frame):
+class CreateReportView(tk.Frame):
     def __init__(self, parent, controller, **kwargs):
         tk.Frame.__init__(self, parent, **kwargs)
         self.controller = controller

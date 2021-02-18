@@ -9,6 +9,7 @@ class Report:
     def __init__(self, corpus_name: str, lexicon_names: List[str]):
         self.corpus_name = corpus_name
         self.lexicon_names = lexicon_names
+        self.complete = False
         self.results = {}
 
     def run(self):

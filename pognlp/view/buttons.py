@@ -8,8 +8,8 @@ class Buttons(tk.Button):
     def __init__(
         self,
         master,
-        command,
-        text,
+        command=None,
+        text=None,
         font_family="PingFang TC",
         color=theme.main_color,
         background_color=theme.background_color_accent,

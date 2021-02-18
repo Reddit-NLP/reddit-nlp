@@ -5,24 +5,31 @@ import pognlp.view.theme as theme
 
 
 class SideListbox(tk.Listbox):
-    def __init__(self, master, **kw):
-        tk.Listbox.__init__(self, master=master, relief="flat", borderwidth=0, **kw)
-        self.default_background = self["bg"]
+    def __init__(self, master, text, on_select, **kw):
+        self.default_background = theme.main_color
+        tk.Listbox.__init__(
+            self,
+            master=master,
+            relief="flat",
+            height=0,  # height=0 sets it so the listboxes are wrapped around their items
+            borderwidth=0,
+            fg=theme.background_color_accent,
+            bg=self.default_background,
+            bd=0,
+            width=13,
+            exportselection=0,
+            font=f.Font(family="Shree Devanagari 714", size=15),
+            **kw,
+        )
+
+        self.insert(0, f"  {text}")
+
+        self.bind("<<ListboxSelect>>", on_select)
 
         # binds these functions on mouse enter, motion, or leave
         self.bind("<Enter>", self.snap_highlight_to_mouse)
         self.bind("<Motion>", self.snap_highlight_to_mouse)
         self.bind("<Leave>", self.unhighlight)
-        self.font = f.Font(family="Shree Devanagari 714", size=15)
-
-        # height=0 sets it so the listboxes are wrapped around their items
-        self.config(
-            fg=theme.background_color_accent,
-            bd=0,
-            font=self.font,
-            height=0,
-            relief="flat",
-        )
 
     # what happens on hover if the listbox is >1 item then this
     # method will not work correctly with its partner
@@ -55,27 +62,42 @@ class Sidebar(tk.Frame):
         self.grid_rowconfigure(3, minsize=150)
 
         # items for navbar
-        home_item = SideListbox(self, bg=theme.main_color, width=13, exportselection=0)
+        home_item = SideListbox(
+            master=self,
+            text="Home",
+            on_select=lambda _: controller.set_current_frame("HomeView"),
+        )
         home_item.grid(column=0, row=1)
-        home_item.insert(0, "  Home")
-        home_item.bind(
-            "<<ListboxSelect>>", lambda x: controller.show_frame("Dashboard")
-        )
 
-        dictionary_item = SideListbox(
-            self, bg=theme.main_color, width=13, exportselection=0
+        lexica_item = SideListbox(
+            master=self,
+            text="Lexica",
+            on_select=lambda _: controller.set_current_frame("LexicaView"),
         )
-        dictionary_item.grid(column=0, row=2)
-        dictionary_item.insert(0, "  Dictionaries")
-        dictionary_item.bind(
-            "<<ListboxSelect>>", lambda x: controller.show_frame("DictionaryDashboard")
-        )
+        lexica_item.grid(column=0, row=2)
 
         reports_item = SideListbox(
-            self, bg=theme.main_color, width=13, exportselection=0
+            master=self,
+            text="Reports",
+            on_select=lambda _: controller.set_current_frame("ReportsView"),
         )
         reports_item.grid(column=0, row=3)
-        reports_item.insert(0, "  Reports")
-        reports_item.bind(
-            "<<ListboxSelect>>", lambda x: controller.show_frame("ReportDashboard")
-        )
+
+
+#         dictionary_item = SideListbox(
+#             self, bg=theme.main_color, width=13, exportselection=0
+#         )
+#         dictionary_item.grid(column=0, row=2)
+#         dictionary_item.insert(0, "  Dictionaries")
+#         dictionary_item.bind(
+#             "<<ListboxSelect>>", lambda x: controller.show_frame("DictionaryDashboard")
+#         )
+
+#         reports_item = SideListbox(
+#             self, bg=theme.main_color, width=13, exportselection=0
+#         )
+#         reports_item.grid(column=0, row=3)
+#         reports_item.insert(0, "  Reports")
+#         reports_item.bind(
+#             "<<ListboxSelect>>", lambda x: controller.show_frame("ReportDashboard")
+#         )

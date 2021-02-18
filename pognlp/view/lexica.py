@@ -3,7 +3,7 @@ import tkinter as tk
 import pognlp.view.theme as theme
 
 
-class DictionaryDashboard(tk.Frame):
+class LexicaView(tk.Frame):
     def __init__(self, parent, controller, **kwargs):
         tk.Frame.__init__(self, parent, **kwargs)
         self.controller = controller

@@ -6,7 +6,7 @@ from pognlp.model.report import Report
 import pognlp.view.theme as theme
 
 
-class ReportDashboard(tk.Frame):
+class ReportsView(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -29,10 +29,10 @@ class ReportDashboard(tk.Frame):
             self.run_report,
             "Run Report",
         )
-        run_report_button.grid(row=0, column=1)
+        run_report_button.grid(row=0, column=0)
+
+        report_results = tk.Label(self)
+        report_results.grid(row=1, column=0, sticky="nsew")
 
     def run_report(self):
-        print("run report!")
-
-    def update(self):
-        pass
+        util.run_thread()

@@ -3,19 +3,50 @@ from tkthread import tk, TkThread
 import tkinter.font as font
 import sys
 
+import pognlp.util as util
 
 from pognlp.model.corpus import Corpus, RedditCorpus
 from pognlp.model.report import Report
 
 from pognlp.view.sidebar import Sidebar
-from pognlp.view.dashboard import Dashboard
-from pognlp.view.dictionary_dashboard import DictionaryDashboard
-from pognlp.view.create_report_form import CreateReportForm
-from pognlp.view.report_dashboard import ReportDashboard
+from pognlp.view.home import HomeView
+from pognlp.view.lexica import LexicaView
+from pognlp.view.create_report import CreateReportView
+from pognlp.view.reports import ReportsView
+
+
+class AppView(tk.Frame):
+    def __init__(self, parent, controller, current_frame, **kwargs):
+        tk.Frame.__init__(self, parent, **kwargs)
+        self.controller = controller
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+
+        sidebar = Sidebar(parent=self, controller=controller)
+        sidebar.grid(column=0, row=0, columnspan=1, rowspan=1, sticky="ns")
+
+        content = tk.Frame(self)
+        content.grid(column=1, row=0, columnspan=3, rowspan=3, sticky="nesw")
+        content.grid_rowconfigure(0, weight=1)
+        content.grid_columnconfigure(0, weight=1)
+
+        self.frames = {}
+        # this will contain all frames so they will be available
+        # to raise
+        for F in (HomeView, LexicaView, CreateReportView, ReportsView):
+            page_name = F.__name__
+            frame = F(parent=content, controller=self)
+            self.frames[page_name] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
+        current_frame.subscribe(self.update_current_frame)
+
+    def update_current_frame(self, current_frame: str) -> None:
+        self.frames[current_frame].tkraise()
 
 
 class App(tk.Tk):
-    # initializes the App
+    """ Root level controller"""
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -25,31 +56,10 @@ class App(tk.Tk):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        container = tk.Frame(self)
-        container.grid(row=0, column=0, sticky="nesw")
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(1, weight=1)
-        # container.grid_configure(rowspan=10, columnspan=10)
+        self.current_frame = util.Observable("HomeView")
 
-        sidebar = Sidebar(parent=container, controller=self)
-        sidebar.grid(column=0, row=0, columnspan=1, rowspan=1, sticky="ns")
-
-        content = tk.Frame(container)
-        content.grid(column=1, row=0, columnspan=3, rowspan=3, sticky="nesw")
-        content.grid_rowconfigure(0, weight=1)
-        content.grid_columnconfigure(0, weight=1)
-
-        self.frames = {}
-        # this will contain all frames so they will be available
-        # to raise
-        for F in (Dashboard, DictionaryDashboard, CreateReportForm, ReportDashboard):
-            # for F in (dash.Dashboard, form1.CreateReportForm, dash2.DictionaryDashboard, dash3.ReportDashboard):
-            page_name = F.__name__
-            frame = F(parent=content, controller=self)
-            self.frames[page_name] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
-
-        self.show_frame("Dashboard")
+        view = AppView(self, self, current_frame=self.current_frame)
+        view.grid(row=0, column=0, sticky="nesw")
 
         # TODO: for now, create a default corpus
 
@@ -68,10 +78,8 @@ class App(tk.Tk):
         # default_report = Report(default_corpus.name, [])
         # default_report.run()
 
-    # function to raise a specific frame
-    def show_frame(self, frame_name):
-        frame = self.frames[frame_name]
-        frame.tkraise()
+    def set_current_frame(self, frame_name):
+        self.current_frame.set(frame_name)
 
 
 def main():

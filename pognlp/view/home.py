@@ -4,7 +4,7 @@ import pognlp.view.buttons as buttons
 import pognlp.view.theme as theme
 
 
-class Dashboard(tk.Frame):
+class HomeView(tk.Frame):
     def __init__(self, parent, controller, **kwargs):
         tk.Frame.__init__(self, parent, **kwargs)
         self.controller = controller
@@ -26,22 +26,22 @@ class Dashboard(tk.Frame):
         # top_navbar buttons
         download_button = buttons.Buttons(
             top_frame,
-            lambda: printme(),
-            "Download New Data",
+            command=lambda: printme(),
+            text="Download New Data",
         )
         download_button.configure(padx=10, pady=10)
 
         create_report_button = buttons.Buttons(
             top_frame,
-            lambda: controller.show_frame("CreateReportForm"),
-            "Create New Report",
+            command=lambda: controller.update_current_frame("CreateReportView"),
+            text="Create New Report",
         )
         create_report_button.configure(padx=10, pady=10)
 
         lexicon_button = buttons.Buttons(
             top_frame,
-            lambda: printme(),
-            "Create New Lexicon",
+            command=lambda: printme(),
+            text="Create New Lexicon",
         )
         lexicon_button.configure(padx=10, pady=10)
 
