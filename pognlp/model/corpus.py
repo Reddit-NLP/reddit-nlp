@@ -11,11 +11,11 @@ import pickle
 import toml
 import praw
 
-import pognlp.constants
+import pognlp.constants as constants
 
 
 class Corpus(ABC):
-    def __init__(self, name: str):
+    def __init__(self, name: str, compiled=False):
         self.name = name
         self.directory = os.path.join(constants.corpora_path, name)
         self.toml_path = os.path.join(self.directory, "corpus.toml")
@@ -31,15 +31,10 @@ class Corpus(ABC):
         with open(toml_path) as toml_file:
             corpus_dict = toml.load(toml_file, _dict=dict)
             corpus_by_type = {corpus.corpus_type: corpus for corpus in (RedditCorpus,)}  # type: ignore
-            return corpus_by_type[corpus_dict["type"]].from_dict(corpus_dict)
+            return corpus_by_type[corpus_dict["type"]](**corpus_dict)
 
     @staticmethod
-    @abstractmethod
-    def from_dict(corpus_dict: dict) -> Corpus:
-        pass
-
-    @staticmethod
-    def list():
+    def ls():
         return [
             os.path.basename(path)
             for path in glob.iglob(os.path.join(constants.corpora_path, "*"))
@@ -49,14 +44,16 @@ class Corpus(ABC):
     def iterate_documents(self) -> Generator[dict, None, None]:
         pass
 
-    def compile(self) -> None:
+    def compile(self, compile_params) -> None:
         self.compiled = True
 
 
 class RedditCorpus(Corpus):
     corpus_type = "reddit"
 
-    def __init__(self, name: str, subreddits=None, start_time=None, end_time=None):
+    def __init__(
+        self, name: str, compiled=False, subreddits=None, start_time=None, end_time=None
+    ):
         super().__init__(name)
         self.subreddits = subreddits or []
         self.start_time = start_time or datetime.datetime.now()
@@ -78,18 +75,9 @@ class RedditCorpus(Corpus):
         with open(self.toml_path, "w") as toml_file:
             toml.dump(corpus_dict, toml_file)
 
-    @staticmethod
-    def from_dict(corpus_dict: dict):
-        corpus = RedditCorpus(
-            corpus_dict["name"],
-            corpus_dict["subreddits"],
-            datetime.datetime.fromisoformat(corpus_dict["start_time"]),
-            datetime.datetime.fromisoformat(corpus_dict["end_time"]),
-        )
-        corpus.compiled = corpus_dict["compiled"]
-        return corpus
-
-    def compile(self, client_id: str, client_secret: str):
+    def compile(self, compile_params):
+        # client_id = compile_params["client_id"]
+        # client_secret = compile_params["client_secret"]
         reddit = praw.Reddit(
             client_id=os.environ["CLIENT_ID"],
             client_secret=os.environ["CLIENT_SECRET"],
@@ -102,7 +90,7 @@ class RedditCorpus(Corpus):
                     comments.append(comment)
         with open(self.comments_pickle_path, "wb") as pickle_file:
             pickle.dump(comments, pickle_file)
-        self.downloaded = True
+        self.compiled = True
         self.write()
 
     def iterate_documents(self):

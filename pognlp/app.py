@@ -12,7 +12,7 @@ from pognlp.view.sidebar import Sidebar
 from pognlp.view.home import HomeView
 from pognlp.view.lexica import LexicaView
 from pognlp.view.create_report import CreateReportView
-from pognlp.view.reports import ReportsView
+from pognlp.view.report_list import ReportListView
 
 
 class AppView(tk.Frame):
@@ -34,9 +34,9 @@ class AppView(tk.Frame):
         self.frames = {}
         # this will contain all frames so they will be available
         # to raise
-        for F in (HomeView, LexicaView, CreateReportView, ReportsView):
+        for F in (HomeView, LexicaView, CreateReportView, ReportListView):
             page_name = F.__name__
-            frame = F(parent=content, controller=self)
+            frame = F(parent=content, controller=controller)
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
         current_frame.subscribe(self.update_current_frame)
@@ -58,12 +58,16 @@ class App(tk.Tk):
 
         self.current_frame = util.Observable("HomeView")
 
+        self.reports = util.Observable(
+            [Report.load(report_name) for report_name in Report.ls()]
+        )
+
         view = AppView(self, self, current_frame=self.current_frame)
         view.grid(row=0, column=0, sticky="nesw")
 
         # TODO: for now, create a default corpus
 
-        # print("all corpora: ", Corpus.list())
+        # print("all corpora: ", Corpus.ls())
         # try:
         #     default_corpus = Corpus.load("default-corpus")
         #     print("loaded default corpus from file")

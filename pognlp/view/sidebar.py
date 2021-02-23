@@ -79,7 +79,7 @@ class Sidebar(tk.Frame):
         reports_item = SideListbox(
             master=self,
             text="Reports",
-            on_select=lambda _: controller.set_current_frame("ReportsView"),
+            on_select=lambda _: controller.set_current_frame("ReportListView"),
         )
         reports_item.grid(column=0, row=3)
 

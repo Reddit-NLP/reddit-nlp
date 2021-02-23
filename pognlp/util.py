@@ -22,13 +22,13 @@ class Observable:
     def unsubscribe(self, func):
         self.callbacks.remove(func)
 
-    def _do_callbacks(self):
+    def update(self):
         for func in self.callbacks:
             func(self.data)
 
     def set(self, data):
         self.data = data
-        self._do_callbacks()
+        self.update()
 
     def get(self):
         return self.data
