@@ -57,9 +57,9 @@ class Sidebar(tk.Frame):
         self.configure(bg=theme.main_color)
 
         self.grid_rowconfigure(0, minsize=100)
-        self.grid_rowconfigure(1, minsize=150)
-        self.grid_rowconfigure(2, minsize=150)
-        self.grid_rowconfigure(3, minsize=150)
+        self.grid_rowconfigure(1, minsize=20)
+        self.grid_rowconfigure(2, minsize=20)
+        self.grid_rowconfigure(3, minsize=20)
 
         # items for navbar
         home_item = SideListbox(
