@@ -16,14 +16,19 @@ toml_name = "report.toml"
 
 
 class Report:
-    def __init__(self, name: str, corpus_name: str, lexicon_names: List[str]):
+    def __init__(
+        self,
+        name: str,
+        corpus_name: str,
+        lexicon_names: List[str],
+        complete=False,
+        results=None,
+    ):
         self.name = name
         self.corpus_name = corpus_name
         self.lexicon_names = lexicon_names
-        self.complete = False
-        self.results = (
-            {}
-        )  # must be TOML-serializable! Maybe switch to pickles if these get big.
+        self.complete = complete
+        self.results = results or {}
         self.directory = os.path.join(constants.reports_path, name)
         self.toml_path = os.path.join(self.directory, toml_name)
 
@@ -56,7 +61,7 @@ class Report:
     def delete(self):
         shutil.rmtree(self.directory)
 
-    def run(self):
+    def run(self, progress_cb=None):
         corpus = Corpus.load(self.corpus_name)
 
         n = 0
@@ -68,13 +73,14 @@ class Report:
         analyzer = SentimentIntensityAnalyzer()
 
         for document in corpus.iterate_documents():
-            n += 1
             print(document["body"])
             scores = analyzer.polarity_scores(document["body"])
             pos.append(scores["pos"])
             neu.append(scores["neu"])
             neg.append(scores["neg"])
             compound.append(scores["compound"])
+            n += 1
+            progress_cb(n)
 
         # TODO for now, print to stdout. later, store results in the class and
         # call a callback to update the UI
@@ -94,9 +100,12 @@ class Report:
         neg_std = np.std(neg)
         compound_std = np.std(compound)
 
-        print(
-            "Analyzing corpus using VADER (Valence Aware Dictionary and sEntiment Reasoner)"
-        )
+        self.results[
+            "text"
+        ] = "Analyzing corpus using VADER (Valence Aware Dictionary and sEntiment Reasoner)\n"
 
-        print(f"{pos_mean=} {neu_mean=} {neg_mean=}")
-        print(f"{pos_std=} {neu_std=} {neg_std=}")
+        self.results["text"] += f"{pos_mean=} {neu_mean=} {neg_mean=}\n"
+        self.results["text"] += f"{pos_std=} {neu_std=} {neg_std=}\n"
+
+        self.complete = True
+        self.write()

@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter as tk
 from tkinter import font
 import pognlp.view.theme as theme
-import pognlp.view.buttons as buttons
+import pognlp.view.common as common
 from pognlp.model.corpus import Corpus, RedditCorpus
 from pognlp.model.lexicon import Lexicon
 
@@ -40,7 +40,7 @@ class CreateReportView(tk.Frame):
         bottom_frame.configure(bg=theme.background_color_accent)
         bottom_frame.grid(column=1, sticky="ns")
 
-        report_params_button = buttons.Button(
+        report_params_button = common.Button(
             bottom_frame,
             command=lambda: controller.set_current_frame(
                 "ReportListView"

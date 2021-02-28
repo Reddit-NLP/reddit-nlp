@@ -1,6 +1,6 @@
 import tkinter as tk
 
-import pognlp.view.buttons as buttons
+import pognlp.view.common as common
 import pognlp.view.theme as theme
 
 
@@ -23,22 +23,22 @@ class HomeView(tk.Frame):
         top_frame.grid_columnconfigure(2, weight=1)
         top_frame.grid_rowconfigure(0, minsize=100, weight=1)
 
-        # top_navbar buttons
-        download_button = buttons.Button(
+        # top_navbar common
+        download_button = common.Button(
             top_frame,
             command=lambda: printme(),
             text="Download New Data",
         )
         download_button.configure(padx=10, pady=10)
 
-        create_report_button = buttons.Button(
+        create_report_button = common.Button(
             top_frame,
             command=lambda: controller.set_current_frame("CreateReportView"),
             text="Create New Report",
         )
         create_report_button.configure(padx=10, pady=10)
 
-        lexicon_button = buttons.Button(
+        lexicon_button = common.Button(
             top_frame,
             command=lambda: printme(),
             text="Create New Lexicon",
