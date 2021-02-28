@@ -34,21 +34,22 @@ class CreateReportView(tk.Frame):
 
         sel_lex = self.lexicon_listbox.get(tk.ANCHOR)
         sel_cor = self.corpus_listbox.get(tk.ANCHOR)
-        
+
         # button
         bottom_frame = tk.Frame(self)
         bottom_frame.configure(bg=theme.background_color_accent)
         bottom_frame.grid(column=1, sticky="ns")
 
-        report_params_button = buttons.Buttons(
+        report_params_button = buttons.Button(
             bottom_frame,
-            command=lambda: controller.set_current_frame("ReportListView"), #TODO: pass selections to analyzer
+            command=lambda: controller.set_current_frame(
+                "ReportListView"
+            ),  # TODO: pass selections to analyzer
             text="Confirm Selections",
         )
-        
+
         report_params_button.grid(sticky="ns")
         report_params_button.configure(padx=10, pady=5)
-        
 
         # scrollbar = tk.Scrollbar(self)
         # scrollbar.grid(column=2, row=0, sticky="ns")

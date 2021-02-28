@@ -24,21 +24,21 @@ class HomeView(tk.Frame):
         top_frame.grid_rowconfigure(0, minsize=100, weight=1)
 
         # top_navbar buttons
-        download_button = buttons.Buttons(
+        download_button = buttons.Button(
             top_frame,
             command=lambda: printme(),
             text="Download New Data",
         )
         download_button.configure(padx=10, pady=10)
 
-        create_report_button = buttons.Buttons(
+        create_report_button = buttons.Button(
             top_frame,
             command=lambda: controller.set_current_frame("CreateReportView"),
             text="Create New Report",
         )
         create_report_button.configure(padx=10, pady=10)
 
-        lexicon_button = buttons.Buttons(
+        lexicon_button = buttons.Button(
             top_frame,
             command=lambda: printme(),
             text="Create New Lexicon",

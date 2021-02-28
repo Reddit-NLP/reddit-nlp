@@ -4,7 +4,7 @@ import tkinter.font as f
 import pognlp.view.theme as theme
 
 
-class Buttons(tk.Button):
+class Button(tk.Button):
     def __init__(
         self,
         master,

@@ -60,14 +60,15 @@ class App(tk.Tk):
         self.current_frame = util.Observable("HomeView")
 
         self.reports = util.Observable(
-            [Report.load(report_name) for report_name in Report.ls()]
+            {report_name: Report.load(report_name) for report_name in Report.ls()}
         )
         self.corpora = util.Observable(
-            [Corpus.load(corpus_name) for corpus_name in Corpus.ls()]
+            {corpus_name: Corpus.load(corpus_name) for corpus_name in Corpus.ls()}
         )
         self.lexica = util.Observable(
-            [Lexicon.load(lexicon_name) for lexicon_name in Lexicon.ls()]
+            {lexicon_name: Lexicon.load(lexicon_name) for lexicon_name in Lexicon.ls()}
         )
+        self.current_report = util.Observable(None)
 
         print("reports", self.reports.get())
         print("lexica", self.lexica.get())
@@ -94,6 +95,20 @@ class App(tk.Tk):
 
     def set_current_frame(self, frame_name):
         self.current_frame.set(frame_name)
+
+    def set_current_report(self, current_report):
+        self.current_report.set(current_report)
+
+    def delete_report(self, report_to_delete):
+        reports = self.reports.get()
+        self.reports.set(
+            {
+                name: report
+                for name, report in reports.items()
+                if name != report_to_delete
+            }
+        )
+        reports[report_to_delete].delete()
 
 
 def main():

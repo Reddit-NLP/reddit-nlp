@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 import os
 import glob
 from typing import List, Generator
@@ -51,6 +52,9 @@ class Report:
         }
         with open(self.toml_path, "w") as toml_file:
             toml.dump(report_dict, toml_file)
+
+    def delete(self):
+        shutil.rmtree(self.directory)
 
     def run(self):
         corpus = Corpus.load(self.corpus_name)
