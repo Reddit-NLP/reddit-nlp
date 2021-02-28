@@ -12,13 +12,11 @@ class CreateReportView(tk.Frame):
         tk.Frame.__init__(self, parent, **kwargs)
         self.controller = controller
         self.configure(bg=theme.background_color)
-
-        # self.report_names = frozenset()
-
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
+        # labels
         self.corpora = tk.Label(self, text="Select a Corpus")
         self.corpora.grid(column=0, row=0, rowspan=1, sticky="sew")
         self.lexica = tk.Label(self, text="Select a Lexicon")
@@ -34,15 +32,17 @@ class CreateReportView(tk.Frame):
         # add lexica to "select a lexicon" list
         self.lexicon_listbox.insert(tk.END, self.controller.lexica.get())
 
-        #TODO: create button to confirm selections (use selections to create report, nav to ReportListView)
+        sel_lex = self.lexicon_listbox.get(tk.ANCHOR)
+        sel_cor = self.corpus_listbox.get(tk.ANCHOR)
         
+        # button
         bottom_frame = tk.Frame(self)
         bottom_frame.configure(bg=theme.background_color_accent)
         bottom_frame.grid(column=1, sticky="ns")
 
         report_params_button = buttons.Buttons(
             bottom_frame,
-            command=lambda: controller.set_current_frame("ReportListView"),
+            command=lambda: controller.set_current_frame("ReportListView"), #TODO: pass selections to analyzer
             text="Confirm Selections",
         )
         
