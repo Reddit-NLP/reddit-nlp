@@ -7,6 +7,7 @@ import pognlp.util as util
 
 from pognlp.model.corpus import Corpus, RedditCorpus
 from pognlp.model.report import Report
+from pognlp.model.lexicon import Lexicon
 
 from pognlp.view.sidebar import Sidebar
 from pognlp.view.home import HomeView
@@ -61,6 +62,15 @@ class App(tk.Tk):
         self.reports = util.Observable(
             [Report.load(report_name) for report_name in Report.ls()]
         )
+        self.corpora = util.Observable(
+            [Corpus.load(corpus_name) for corpus_name in Corpus.ls()]
+        )
+        self.lexica = util.Observable(
+            [Lexicon.load(lexicon_name) for lexicon_name in Lexicon.ls()]
+        )
+
+        print("reports", self.reports.get())
+        print("lexica", self.lexica.get())
 
         view = AppView(self, self, current_frame=self.current_frame)
         view.grid(row=0, column=0, sticky="nesw")

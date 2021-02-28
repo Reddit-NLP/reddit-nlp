@@ -30,8 +30,11 @@ class Corpus(ABC):
         toml_path = os.path.join(constants.corpora_path, name, "corpus.toml")
         with open(toml_path) as toml_file:
             corpus_dict = toml.load(toml_file, _dict=dict)
+
             corpus_by_type = {corpus.corpus_type: corpus for corpus in (RedditCorpus,)}  # type: ignore
-            return corpus_by_type[corpus_dict["type"]](**corpus_dict)
+            corpus_cls = corpus_by_type[corpus_dict["type"]]
+            del corpus_dict["type"]
+            return corpus_cls(**corpus_dict)
 
     @staticmethod
     def ls():
@@ -56,8 +59,12 @@ class RedditCorpus(Corpus):
     ):
         super().__init__(name)
         self.subreddits = subreddits or []
-        self.start_time = start_time or datetime.datetime.now()
-        self.end_time = end_time or datetime.datetime.now()
+        self.start_time = (
+            datetime.datetime.fromisoformat(start_time) or datetime.datetime.now()
+        )
+        self.end_time = (
+            datetime.datetime.fromisoformat(end_time) or datetime.datetime.now()
+        )
         self.comments_pickle_path = os.path.join(self.directory, "comments.pickle")
         self.write()
 

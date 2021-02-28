@@ -2,14 +2,16 @@ from __future__ import annotations
 
 import os
 import glob
+from typing import List, Generator
 
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from typing import List, Generator
 import numpy as np
 import toml
 
 import pognlp.constants as constants
 from pognlp.model.corpus import Corpus
+
+toml_name = "report.toml"
 
 
 class Report:
@@ -22,7 +24,7 @@ class Report:
             {}
         )  # must be TOML-serializable! Maybe switch to pickles if these get big.
         self.directory = os.path.join(constants.reports_path, name)
-        self.toml_path = os.path.join(self.directory, "report.toml")
+        self.toml_path = os.path.join(self.directory, toml_name)
 
     @staticmethod
     def ls() -> Generator[str, None, None]:
@@ -33,13 +35,13 @@ class Report:
 
     @staticmethod
     def load(name: str) -> Report:
-        toml_path = os.path.join(constants.reports_path, name, "report.toml")
+        toml_path = os.path.join(constants.reports_path, name, toml_name)
         with open(toml_path) as toml_file:
             return Report(**toml.load(toml_file))
 
     def write(self):
-        if not os.path.exists(constants.reports_path):
-            os.makedirs(constants.reports_path, exist_ok=True)
+        if not os.path.exists(self.directory):
+            os.makedirs(self.directory)
         report_dict = {
             "name": self.name,
             "corpus_name": self.corpus_name,
