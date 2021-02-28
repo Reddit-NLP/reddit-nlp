@@ -33,7 +33,7 @@ class HomeView(tk.Frame):
 
         create_report_button = buttons.Buttons(
             top_frame,
-            command=lambda: controller.update_current_frame("CreateReportView"),
+            command=lambda: controller.set_current_frame("CreateReportView"),
             text="Create New Report",
         )
         create_report_button.configure(padx=10, pady=10)
