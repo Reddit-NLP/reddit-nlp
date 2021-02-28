@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import font
 import pognlp.view.theme as theme
 import pognlp.view.buttons as buttons
+from pognlp.model.corpus import Corpus, RedditCorpus
+from pognlp.model.lexicon import Lexicon
 
 
 class CreateReportView(tk.Frame):
@@ -11,7 +13,7 @@ class CreateReportView(tk.Frame):
         self.controller = controller
         self.configure(bg=theme.background_color)
 
-        self.report_names = frozenset()
+        # self.report_names = frozenset()
 
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=1)
@@ -23,12 +25,16 @@ class CreateReportView(tk.Frame):
         self.lexica.grid(column=1, row=0, rowspan=1, sticky="sew")
 
         self.corpus_listbox = tk.Listbox(self)
-        self.corpus_listbox.grid(column=0, row=1, sticky="new")
-        self.corpus_listbox.insert(1, "corpus")
+        self.corpus_listbox.grid(column=0, row=1, sticky="nsew")
+        # add corpora to "select a corpus" list
+        self.corpus_listbox.insert(tk.END, self.controller.corpora.get())
+
         self.lexicon_listbox = tk.Listbox(self)
-        self.lexicon_listbox.grid(column=1, row=1, sticky="new")
-        self.lexicon_listbox.insert(1, "lexicon")
-        
+        self.lexicon_listbox.grid(column=1, row=1, sticky="nsew")
+        # add lexica to "select a lexicon" list
+        self.lexicon_listbox.insert(tk.END, self.controller.lexica.get())
+
+        #TODO: create button to confirm selections (use selections to create report, nav to ReportListView)
         
         
 
