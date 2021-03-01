@@ -43,3 +43,6 @@ class Lexicon:
         }
         with open(self.toml_path, "w") as toml_file:
             toml.dump(lexicon_dict, toml_file)
+
+    def delete(self):
+        shutil.rmtree(self.directory)

@@ -50,6 +50,17 @@ class HomeView(tk.Frame):
         create_report_button.grid(row=0, column=1)
         lexicon_button.grid(row=0, column=2)
 
+        welcome_header = common.Label(self, text="Welcome!", justify=tk.LEFT, size=20)
+        welcome_header.grid(column=0, row=1)
+
+        welcome_message = common.Label(
+            self,
+            text="To get started, select 'Download New Data' or 'Create New Lexicon'.",
+            justify=tk.LEFT,
+            size=12,
+        )
+        welcome_message.grid(column=0, row=2)
+
 
 def printme():
     print(1)

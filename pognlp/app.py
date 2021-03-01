@@ -11,7 +11,7 @@ from pognlp.model.lexicon import Lexicon
 
 from pognlp.view.sidebar import Sidebar
 from pognlp.view.home import HomeView
-from pognlp.view.lexica import LexicaView
+from pognlp.view.lexicon_list import LexiconListView
 from pognlp.view.create_report import CreateReportView
 from pognlp.view.report_list import ReportListView
 from pognlp.view.report_view import ReportView
@@ -36,7 +36,13 @@ class AppView(tk.Frame):
         self.frames = {}
         # this will contain all frames so they will be available
         # to raise
-        for F in (HomeView, LexicaView, CreateReportView, ReportListView, ReportView):
+        for F in (
+            HomeView,
+            LexiconListView,
+            CreateReportView,
+            ReportListView,
+            ReportView,
+        ):
             page_name = F.__name__
             frame = F(parent=content, controller=controller)
             self.frames[page_name] = frame
@@ -105,6 +111,17 @@ class App(tk.Tk):
             }
         )
         reports[report_to_delete].delete()
+
+    def delete_lexicon(self, lexicon_to_delete):
+        lexica = self.lexica.get()
+        self.lexica.set(
+            {
+                name: lexicon
+                for name, lexicon in lexica.items()
+                if name != lexicon_to_delete
+            }
+        )
+        lexica[lexicon_to_delete].delete()
 
 
 def main():

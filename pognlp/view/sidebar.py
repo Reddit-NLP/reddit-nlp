@@ -72,7 +72,7 @@ class Sidebar(tk.Frame):
         lexica_item = SideListbox(
             master=self,
             text="Lexica",
-            on_select=lambda _: controller.set_current_frame("LexicaView"),
+            on_select=lambda _: controller.set_current_frame("LexiconListView"),
         )
         lexica_item.grid(column=0, row=2)
 
