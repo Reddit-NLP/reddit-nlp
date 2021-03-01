@@ -5,6 +5,32 @@ import tkinter.font as f
 import pognlp.view.theme as theme
 
 
+class Label(tk.Label):
+    def __init__(self, master, size=12, **kw):
+        super().__init__(
+            master,
+            bg=theme.background_color,
+            fg=theme.main_color,
+            font=f.Font(family=theme.font_family, size=size),
+            **kw,
+        )
+
+
+class Listbox(tk.Listbox):
+    def __init__(self, master, size=15, **kw):
+        super().__init__(
+            master,
+            relief="flat",
+            borderwidth=0,
+            fg="#000000",
+            bg=theme.background_color_accent,
+            bd=0,
+            width=100,
+            font=f.Font(family=theme.font_family, size=15),
+            **kw,
+        )
+
+
 class Button(tk.Button):
     def __init__(
         self,
@@ -47,8 +73,10 @@ class ScrollableFrame(ttk.Frame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        canvas = tk.Canvas(self)
-        canvas.grid(column=0, row=0, sticky="news")
+        canvas = tk.Canvas(self, bg=theme.background_color)
+        canvas.grid(column=0, row=0, sticky="nesw")
+        canvas.grid_columnconfigure(0, weight=1)
+        canvas.grid_rowconfigure(0, weight=1)
 
         scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
         scrollbar.grid(column=1, row=0, sticky="ns")
@@ -57,6 +85,7 @@ class ScrollableFrame(ttk.Frame):
         self.scrollable_frame.bind(
             "<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
         )
+        self.scrollable_frame.grid(column=0, row=0, sticky="nesw")
 
         canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)

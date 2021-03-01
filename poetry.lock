@@ -14,10 +14,6 @@ category = "main"
 optional = false
 python-versions = ">=3.6"
 
-[package.extras]
-colorama = ["colorama (>=0.4.3)"]
-d = ["aiohttp (>=3.3.2)", "aiohttp-cors"]
-
 [package.dependencies]
 appdirs = "*"
 click = ">=7.1.2"
@@ -27,6 +23,10 @@ regex = ">=2020.1.8"
 toml = ">=0.10.1"
 typed-ast = ">=1.4.0"
 typing-extensions = ">=3.7.4"
+
+[package.extras]
+colorama = ["colorama (>=0.4.3)"]
+d = ["aiohttp (>=3.3.2)", "aiohttp-cors"]
 
 [[package]]
 name = "certifi"
@@ -135,17 +135,17 @@ category = "main"
 optional = false
 python-versions = "~=3.6"
 
+[package.dependencies]
+prawcore = ">=1.5.0,<2.0"
+update-checker = ">=0.18"
+websocket-client = ">=0.54.0"
+
 [package.extras]
 ci = ["coveralls"]
 dev = ["pre-commit", "black", "flake8", "flynt", "isort", "pydocstyle", "sphinx (<3.0)", "sphinx-rtd-theme", "betamax (>=0.8,<0.9)", "betamax-matchers (>=0.3.0,<0.5)", "pytest (>=2.7.3)"]
 lint = ["black", "flake8", "flynt", "isort", "pydocstyle", "sphinx (<3.0)", "sphinx-rtd-theme"]
 readthedocs = ["sphinx (<3.0)"]
 test = ["betamax (>=0.8,<0.9)", "betamax-matchers (>=0.3.0,<0.5)", "pytest (>=2.7.3)"]
-
-[package.dependencies]
-prawcore = ">=1.5.0,<2.0"
-update-checker = ">=0.18"
-websocket-client = ">=0.54.0"
 
 [[package]]
 name = "prawcore"
@@ -155,14 +155,14 @@ category = "main"
 optional = false
 python-versions = ">=3.5"
 
+[package.dependencies]
+requests = ">=2.6.0,<3.0"
+
 [package.extras]
 ci = ["coveralls"]
 dev = ["black", "flake8", "pre-commit", "pydocstyle", "betamax (>=0.8,<0.9)", "betamax-matchers (>=0.4.0,<0.5)", "betamax-serializers (>=0.2.0,<0.3)", "mock (>=0.8)", "pytest", "testfixtures (>4.13.2,<7)"]
 lint = ["black", "flake8", "pre-commit", "pydocstyle"]
 test = ["betamax (>=0.8,<0.9)", "betamax-matchers (>=0.4.0,<0.5)", "betamax-serializers (>=0.2.0,<0.3)", "mock (>=0.8)", "pytest", "testfixtures (>4.13.2,<7)"]
-
-[package.dependencies]
-requests = ">=2.6.0,<3.0"
 
 [[package]]
 name = "pre-commit"
@@ -215,15 +215,23 @@ category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
-[package.extras]
-security = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)"]
-socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7)", "win-inet-pton"]
-
 [package.dependencies]
 certifi = ">=2017.4.17"
 chardet = ">=3.0.2,<5"
 idna = ">=2.5,<3"
 urllib3 = ">=1.21.1,<1.27"
+
+[package.extras]
+security = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)"]
+socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
+
+[[package]]
+name = "rtoml"
+version = "0.5.0"
+description = "A better TOML library for python implemented in rust."
+category = "main"
+optional = false
+python-versions = ">=3.7"
 
 [[package]]
 name = "six"
@@ -273,13 +281,13 @@ category = "main"
 optional = false
 python-versions = "*"
 
+[package.dependencies]
+requests = ">=2.3.0"
+
 [package.extras]
 dev = ["black", "flake8", "pytest (>=2.7.3)"]
 lint = ["black", "flake8"]
 test = ["pytest (>=2.7.3)"]
-
-[package.dependencies]
-requests = ">=2.3.0"
 
 [[package]]
 name = "urllib3"
@@ -292,7 +300,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
 [package.extras]
 brotli = ["brotlipy (>=0.6.0)"]
 secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
-socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
+socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "vadersentiment"
@@ -313,15 +321,15 @@ category = "main"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
 
-[package.extras]
-docs = ["proselint (>=0.10.2)", "sphinx (>=3)", "sphinx-argparse (>=0.2.5)", "sphinx-rtd-theme (>=0.4.3)", "towncrier (>=19.9.0rc1)"]
-testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", "pytest (>=4)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.1)", "pytest-mock (>=2)", "pytest-randomly (>=1)", "pytest-timeout (>=1)", "packaging (>=20.0)", "xonsh (>=0.9.16)"]
-
 [package.dependencies]
 appdirs = ">=1.4.3,<2"
 distlib = ">=0.3.1,<1"
 filelock = ">=3.0.0,<4"
 six = ">=1.9.0,<2"
+
+[package.extras]
+docs = ["proselint (>=0.10.2)", "sphinx (>=3)", "sphinx-argparse (>=0.2.5)", "sphinx-rtd-theme (>=0.4.3)", "towncrier (>=19.9.0rc1)"]
+testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", "pytest (>=4)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.1)", "pytest-mock (>=2)", "pytest-randomly (>=1)", "pytest-timeout (>=1)", "packaging (>=20.0)", "xonsh (>=0.9.16)"]
 
 [[package]]
 name = "websocket-client"
@@ -335,9 +343,9 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 six = "*"
 
 [metadata]
-lock-version = "1.0"
+lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "a2ce6e230b4904855d1894027e592d1534c07c12080c7bb0e4582c1276fdfa3f"
+content-hash = "d782026c559ac522fefe30cfd1bbadfe2a8b4ffafd51c97ded472d1b15936326"
 
 [metadata.files]
 appdirs = [
@@ -502,6 +510,27 @@ regex = [
 requests = [
     {file = "requests-2.25.1-py2.py3-none-any.whl", hash = "sha256:c210084e36a42ae6b9219e00e48287def368a26d03a048ddad7bfee44f75871e"},
     {file = "requests-2.25.1.tar.gz", hash = "sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804"},
+]
+rtoml = [
+    {file = "rtoml-0.5.0-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:ac2955858bf1ef467648b896c1dfc6fc660301302599ed810181846f13b40351"},
+    {file = "rtoml-0.5.0-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:72259154c5041ea168748ccfd64cc7e58b514d1e28d2dd897f9386676899ffe6"},
+    {file = "rtoml-0.5.0-cp37-cp37m-manylinux2014_i686.whl", hash = "sha256:ff63e85f168ddb46b5992d9fca554a113d16d534f17f861e847ad93c530d3111"},
+    {file = "rtoml-0.5.0-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:f66a3249025cd45a6193c6a39f72b03c5fb8aeee6b2a88206408c466635fe9e4"},
+    {file = "rtoml-0.5.0-cp37-cp37m-win32.whl", hash = "sha256:83b8d2b54689b8a46c8bc3f8e02f20e75922820f063360d2ef3ffefb1347b626"},
+    {file = "rtoml-0.5.0-cp37-cp37m-win_amd64.whl", hash = "sha256:9373ca569c6cbf094e4989bdfd45ab063e5b7b65f74c5a0013214bcffe00016e"},
+    {file = "rtoml-0.5.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:f3844a641f20fd9d29bb4d07012c4b88432eca00e4b319ac6c16504b501eac3a"},
+    {file = "rtoml-0.5.0-cp38-cp38-manylinux1_i686.whl", hash = "sha256:1d431bd5cab786ed23397c7d3d613c8c4119fa85ebbc3b03314ac74e38a960f5"},
+    {file = "rtoml-0.5.0-cp38-cp38-manylinux2014_i686.whl", hash = "sha256:7e781994d1884bbb956b33de6cd9c0b73aadfaad8cb5a520482edb98e52ae735"},
+    {file = "rtoml-0.5.0-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:ff58b95325a49dd1b6d41a997da9aa496db970c66e80a242dd8ca9cc4a613502"},
+    {file = "rtoml-0.5.0-cp38-cp38-win32.whl", hash = "sha256:aeeec859ffc02abfb3c2f0ddcbeda2bb92af773877432bf85ed2a240c15d14e2"},
+    {file = "rtoml-0.5.0-cp38-cp38-win_amd64.whl", hash = "sha256:044780b5e5fa4434c4f3e36d05a65d7ebe345529c69f38ac54fd45e0dc59283e"},
+    {file = "rtoml-0.5.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:73b5a9b83a69543f4147f9f19aa4b39da3c850000644672b5386740ecadd016c"},
+    {file = "rtoml-0.5.0-cp39-cp39-manylinux1_i686.whl", hash = "sha256:5216a177ad22247675886dbb33b15f4e080633749a455d2887ef9609e94d32de"},
+    {file = "rtoml-0.5.0-cp39-cp39-manylinux2014_i686.whl", hash = "sha256:e89af0584945ac784f13744d1d1410e53d9070c680dd53ecbfb6fe4d11d10dbb"},
+    {file = "rtoml-0.5.0-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:b29cf20b3db7cd11ca560f83b764ca43f0b6d59f5523e843797ce66e1b8bdaf4"},
+    {file = "rtoml-0.5.0-cp39-cp39-win32.whl", hash = "sha256:693ef3a3843382903218e2af60e16554bce716dbf2dfabe94f0e297bb5217e82"},
+    {file = "rtoml-0.5.0-cp39-cp39-win_amd64.whl", hash = "sha256:828673456def5c81e048739a213e7bd600657521a2aa20aa4ca2e9e39d24666b"},
+    {file = "rtoml-0.5.0.tar.gz", hash = "sha256:ba3760bee5cb5afb12de630e3883f609db177d3311e71e6ac492f2a199c70e97"},
 ]
 six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},

@@ -8,7 +8,7 @@ import os
 import pickle
 
 
-import toml
+import rtoml as toml
 import praw
 
 import pognlp.constants as constants
@@ -29,7 +29,7 @@ class Corpus(ABC):
     def load(name: str) -> Corpus:
         toml_path = os.path.join(constants.corpora_path, name, "corpus.toml")
         with open(toml_path) as toml_file:
-            corpus_dict = toml.load(toml_file, _dict=dict)
+            corpus_dict = toml.load(toml_file)
 
             corpus_by_type = {corpus.corpus_type: corpus for corpus in (RedditCorpus,)}  # type: ignore
             corpus_cls = corpus_by_type[corpus_dict["type"]]

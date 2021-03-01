@@ -77,28 +77,23 @@ class App(tk.Tk):
         view = AppView(self, self, current_frame=self.current_frame)
         view.grid(row=0, column=0, sticky="nesw")
 
-        # TODO: for now, create a default corpus
-
-        # print("all corpora: ", Corpus.ls())
-        # try:
-        #     default_corpus = Corpus.load("default-corpus")
-        #     print("loaded default corpus from file")
-        # except FileNotFoundError:
-        #     default_corpus = RedditCorpus("default-corpus", ["gaming"])
-        #     print("default corpus didn't exist, made a new one")
-
-        # if not default_corpus.compiled:
-        #     print("Downloading corpus from Reddit...")
-        #     default_corpus.compile(os.environ["CLIENT_ID"], os.environ["CLIENT_SECRET"])
-
-        # default_report = Report(default_corpus.name, [])
-        # default_report.run()
-
     def set_current_frame(self, frame_name):
         self.current_frame.set(frame_name)
 
     def set_current_report(self, current_report):
         self.current_report.set(current_report)
+
+    def create_report(self, report_name, corpus_name, lexicon_names):
+        if report_name in self.reports.get():
+            raise ValueError("A report already exists with that name.")
+        report = Report(
+            name=report_name, corpus_name=corpus_name, lexicon_names=lexicon_names
+        )
+        reports = {
+            **self.reports.get(),
+            report_name: report,
+        }
+        self.reports.set(reports)
 
     def delete_report(self, report_to_delete):
         reports = self.reports.get()

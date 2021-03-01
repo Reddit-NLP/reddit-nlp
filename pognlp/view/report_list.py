@@ -14,22 +14,14 @@ class ReportListView(tk.Frame):
         self.configure(bg=theme.background_color)
 
         self.selected_report = util.Observable(None)
-        self.report_names = frozenset()
+        self.report_names = []
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
 
-        self.listbox = tk.Listbox(
+        self.listbox = common.Listbox(
             self,
-            relief="flat",
-            height=5,
-            borderwidth=0,
-            fg="#000000",
-            bg=theme.background_color_accent,
-            bd=0,
-            width=100,
             exportselection=0,
-            font=f.Font(family=theme.font_family, size=15),
         )
         self.listbox.bind("<<ListboxSelect>>", self.on_select)  # select report
 

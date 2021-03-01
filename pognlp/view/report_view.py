@@ -39,28 +39,23 @@ class ReportView(tk.Frame):
 
         self.report = self.controller.reports.get()[current_report]
 
-        tk.Label(
+        common.Label(
             frame,
             text=self.report.name,
-            bg=theme.background_color,
             justify=tk.LEFT,
-            font=f.Font(family=theme.font_family, size=20),
+            size=20,
         ).grid(column=0, row=0, sticky="w")
 
-        tk.Label(
+        common.Label(
             frame,
             text=f"Corpus: {self.report.corpus_name}",
-            bg=theme.background_color,
             justify=tk.LEFT,
-            font=f.Font(family=theme.font_family, size=15),
         ).grid(column=0, row=1, sticky="w")
 
-        tk.Label(
+        common.Label(
             frame,
             text=f"Lexica: Default VADER Lexicon",
-            bg=theme.background_color,
             justify=tk.LEFT,
-            font=f.Font(family=theme.font_family, size=15),
         ).grid(column=0, row=2, sticky="w")
 
         self.run_progress = ttk.Progressbar(
@@ -76,10 +71,8 @@ class ReportView(tk.Frame):
         else:
             run_report_button.grid(column=0, row=3)
 
-        print("rendered")
         if self.report.complete:
-            print("report_complete", self.report.results["text"])
-            report_results = tk.Label(
+            report_results = common.Label(
                 frame, text=self.report.results["text"], justify=tk.LEFT
             )
             report_results.grid(column=0, row=4)

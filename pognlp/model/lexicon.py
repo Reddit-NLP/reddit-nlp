@@ -5,7 +5,7 @@ import os
 from typing import List, Tuple, Generator
 from collections import namedtuple
 
-import toml
+import rtoml as toml
 
 import pognlp.constants as constants
 

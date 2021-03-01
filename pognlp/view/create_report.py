@@ -1,5 +1,5 @@
 import tkinter as tk
-import tkinter as tk
+import tkinter.messagebox as messagebox
 from tkinter import font
 import pognlp.view.theme as theme
 import pognlp.view.common as common
@@ -17,23 +17,22 @@ class CreateReportView(tk.Frame):
         self.grid_columnconfigure(1, weight=1)
 
         # labels
-        self.corpora = tk.Label(self, text="Select a Corpus")
-        self.corpora.grid(column=0, row=0, rowspan=1, sticky="sew")
-        self.lexica = tk.Label(self, text="Select a Lexicon")
-        self.lexica.grid(column=1, row=0, rowspan=1, sticky="sew")
+        self.corpus_label = tk.Label(self, text="Select a Corpus")
+        self.corpus_label.grid(column=0, row=0, rowspan=1, sticky="sew")
+        self.lexicon_label = tk.Label(self, text="Select a Lexicon")
+        self.lexicon_label.grid(column=1, row=0, rowspan=1, sticky="sew")
 
-        self.corpus_listbox = tk.Listbox(self, exportselection=0)
+        self.corpus_listbox = common.Listbox(self, exportselection=0)
         self.corpus_listbox.grid(column=0, row=1, sticky="nsew")
-        # add corpora to "select a corpus" list
-        self.corpus_listbox.insert(tk.END, self.controller.corpora.get())
 
-        self.lexicon_listbox = tk.Listbox(self, exportselection=0)
+        self.lexicon_listbox = common.Listbox(self, exportselection=0)
         self.lexicon_listbox.grid(column=1, row=1, sticky="nsew")
-        # add lexica to "select a lexicon" list
-        self.lexicon_listbox.insert(tk.END, self.controller.lexica.get())
 
-        sel_lex = self.lexicon_listbox.get(tk.ANCHOR)
-        sel_cor = self.corpus_listbox.get(tk.ANCHOR)
+        self.corpus_names = []
+        self.lexicon_names = []
+
+        self.controller.corpora.subscribe(self.update_corpora)
+        self.controller.lexica.subscribe(self.update_lexica)
 
         # button
         bottom_frame = tk.Frame(self)
@@ -42,14 +41,49 @@ class CreateReportView(tk.Frame):
 
         report_params_button = common.Button(
             bottom_frame,
-            command=lambda: controller.set_current_frame(
-                "ReportListView"
-            ),  # TODO: pass selections to analyzer
+            command=self.create_report,
             text="Confirm Selections",
         )
 
         report_params_button.grid(sticky="ns")
         report_params_button.configure(padx=10, pady=5)
 
-        # scrollbar = tk.Scrollbar(self)
-        # scrollbar.grid(column=2, row=0, sticky="ns")
+    def update_corpora(self, corpora):
+        self.corpus_names = list(corpora.keys())
+        self.corpus_listbox.delete(0, tk.END)
+
+        # add corpora to "select a corpus" list
+        for corpus_name in self.corpus_names:
+            self.corpus_listbox.insert(tk.END, corpus_name)
+
+    def update_lexica(self, lexica):
+        self.lexicon_names = list(lexica.keys())
+
+        self.lexicon_listbox.delete(0, tk.END)
+
+        # add lexica to "select a lexicon" list
+        for lexicon_name in self.lexicon_names:
+            self.lexicon_listbox.insert(tk.END, lexicon_name)
+
+    def create_report(self):
+        report_name = "example Report Name"
+        corpus_indices = self.corpus_listbox.curselection()
+        if not corpus_indices:
+            messagebox.showerror("Error", "Please select at a corpus.")
+        [corpus_index] = corpus_indices
+
+        corpus_name = self.corpus_names[corpus_index]
+
+        lexicon_indices = self.lexicon_listbox.curselection()
+        if not lexicon_indices:
+            tk.messagebox.showerror("Error", "Please select at least one lexicon.")
+        lexicon_names = [self.lexicon_names[index] for index in lexicon_indices]
+
+        try:
+            self.controller.create_report(report_name, corpus_name, lexicon_names)
+        except ValueError as e:
+            tk.messagebox.showerror("Error", e)
+            return
+
+        self.controller.set_current_report(report_name)
+        self.controller.set_current_frame("ReportView")

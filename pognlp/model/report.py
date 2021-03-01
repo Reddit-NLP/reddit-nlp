@@ -4,10 +4,11 @@ import shutil
 import os
 import glob
 from typing import List, Generator
+import time
 
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import numpy as np
-import toml
+import rtoml as toml
 
 import pognlp.constants as constants
 from pognlp.model.corpus import Corpus
@@ -73,6 +74,7 @@ class Report:
         analyzer = SentimentIntensityAnalyzer()
 
         for document in corpus.iterate_documents():
+            time.sleep(0.01)  # simulate a slow process
             print(document["body"])
             scores = analyzer.polarity_scores(document["body"])
             pos.append(scores["pos"])
