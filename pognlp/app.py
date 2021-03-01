@@ -59,6 +59,8 @@ class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
 
+        self.title("PogNLP")
+
         self.tkt = TkThread(self)
 
         self.grid_columnconfigure(0, weight=1)
@@ -76,9 +78,6 @@ class App(tk.Tk):
             {lexicon_name: Lexicon.load(lexicon_name) for lexicon_name in Lexicon.ls()}
         )
         self.current_report = util.Observable(None)
-
-        print("reports", self.reports.get())
-        print("lexica", self.lexica.get())
 
         view = AppView(self, self, current_frame=self.current_frame)
         view.grid(row=0, column=0, sticky="nesw")
@@ -103,6 +102,9 @@ class App(tk.Tk):
 
     def delete_report(self, report_to_delete):
         reports = self.reports.get()
+        if self.current_report.get() == report_to_delete:
+            print("reset current report")
+            self.set_current_report(None)
         self.reports.set(
             {
                 name: report

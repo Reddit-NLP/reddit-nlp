@@ -37,6 +37,8 @@ class ReportView(tk.Frame):
             self.report = None
             return
 
+        print("report updated, report is", current_report)
+
         self.report = self.controller.reports.get()[current_report]
 
         common.Label(
@@ -54,7 +56,7 @@ class ReportView(tk.Frame):
 
         common.Label(
             frame,
-            text=f"Lexica: Default VADER Lexicon",
+            text=f"Lexica: {', '.join(self.report.lexicon_names)}",
             justify=tk.LEFT,
         ).grid(column=0, row=2, sticky="w")
 
