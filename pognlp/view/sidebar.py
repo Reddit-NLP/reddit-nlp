@@ -6,7 +6,7 @@ import pognlp.view.theme as theme
 
 class SideListbox(tk.Listbox):
     def __init__(self, master, text, on_select, **kw):
-        self.default_background = theme.main_color
+        self.default_background = theme.accent_color
         tk.Listbox.__init__(
             self,
             master=master,
@@ -54,7 +54,7 @@ class Sidebar(tk.Frame):
         tk.Frame.__init__(self, parent, **kwargs)
         self.controller = controller
 
-        self.configure(bg=theme.main_color)
+        self.configure(bg=theme.accent_color)
 
         self.grid_rowconfigure(0, minsize=100)
         self.grid_rowconfigure(1, minsize=20)

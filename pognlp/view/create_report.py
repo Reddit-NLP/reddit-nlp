@@ -17,9 +17,9 @@ class CreateReportView(tk.Frame):
         self.grid_columnconfigure(1, weight=1)
 
         # labels
-        self.corpus_label = tk.Label(self, text="Select a Corpus")
+        self.corpus_label = common.Label(self, text="Select a Corpus")
         self.corpus_label.grid(column=0, row=0, rowspan=1, sticky="sew")
-        self.lexicon_label = tk.Label(self, text="Select a Lexicon")
+        self.lexicon_label = common.Label(self, text="Select a Lexicon")
         self.lexicon_label.grid(column=1, row=0, rowspan=1, sticky="sew")
 
         self.corpus_listbox = common.Listbox(self, exportselection=0)
@@ -37,15 +37,23 @@ class CreateReportView(tk.Frame):
         # button
         bottom_frame = tk.Frame(self)
         bottom_frame.configure(bg=theme.background_color_accent)
-        bottom_frame.grid(column=1, sticky="ns")
+        bottom_frame.grid(column=0, columnspan=2, sticky="nesw")
+        bottom_frame.grid_columnconfigure(0, weight=1)
+        bottom_frame.grid_columnconfigure(2, weight=1)
+
+        report_name_label = common.Label(bottom_frame, text="Report Name:")
+        report_name_label.grid(column=0, row=0)
+
+        self.report_name_entry = common.Entry(bottom_frame)
+        self.report_name_entry.grid(column=1, row=0, sticky="ns")
 
         report_params_button = common.Button(
             bottom_frame,
             command=self.create_report,
             text="Confirm Selections",
         )
+        report_params_button.grid(column=2, row=0, sticky="ns")
 
-        report_params_button.grid(sticky="ns")
         report_params_button.configure(padx=10, pady=5)
 
     def update_corpora(self, corpora):
@@ -66,10 +74,15 @@ class CreateReportView(tk.Frame):
             self.lexicon_listbox.insert(tk.END, lexicon_name)
 
     def create_report(self):
-        report_name = "example Report Name"
+        report_name = self.report_name_entry.get()
+        if not report_name:
+            messagebox.showerror("Error", "Please enter a name.")
+            return
+
         corpus_indices = self.corpus_listbox.curselection()
         if not corpus_indices:
             messagebox.showerror("Error", "Please select at a corpus.")
+            return
         [corpus_index] = corpus_indices
 
         corpus_name = self.corpus_names[corpus_index]
@@ -84,6 +97,8 @@ class CreateReportView(tk.Frame):
         except ValueError as e:
             tk.messagebox.showerror("Error", e)
             return
+
+        self.report_name_entry.delete(0, tk.END)
 
         self.controller.set_current_report(report_name)
         self.controller.set_current_frame("ReportView")

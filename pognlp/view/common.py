@@ -5,6 +5,17 @@ import tkinter.font as f
 import pognlp.view.theme as theme
 
 
+class Entry(tk.Entry):
+    def __init__(self, master, size=12, **kw):
+        super().__init__(
+            master,
+            bg=theme.background_color,
+            fg=theme.main_color,
+            font=f.Font(family=theme.font_family, size=size),
+            **kw,
+        )
+
+
 class Label(tk.Label):
     def __init__(self, master, size=12, **kw):
         super().__init__(
