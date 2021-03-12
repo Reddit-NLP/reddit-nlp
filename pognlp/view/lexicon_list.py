@@ -64,7 +64,7 @@ class LexiconListView(tk.Frame):
 
     def open_lexicon(self):
         self.controller.set_current_lexicon(self.selected_lexicon.get())
-        self.controller.set_current_frame("LexiconView")
+        self.controller.set_current_frame("CreateLexiconView")
 
     def create_lexicon(self):
         self.controller.set_current_frame("CreateLexiconView")

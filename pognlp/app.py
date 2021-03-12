@@ -15,6 +15,7 @@ from pognlp.view.lexicon_list import LexiconListView
 from pognlp.view.create_report import CreateReportView
 from pognlp.view.report_list import ReportListView
 from pognlp.view.report_view import ReportView
+from pognlp.view.create_lexicon import CreateLexiconView
 
 
 class AppView(tk.Frame):
@@ -40,6 +41,7 @@ class AppView(tk.Frame):
             HomeView,
             LexiconListView,
             CreateReportView,
+            CreateLexiconView,
             ReportListView,
             ReportView,
         ):
@@ -78,6 +80,7 @@ class App(tk.Tk):
             {lexicon_name: Lexicon.load(lexicon_name) for lexicon_name in Lexicon.ls()}
         )
         self.current_report = util.Observable(None)
+        self.current_lexicon = util.Observable(None)
 
         view = AppView(self, self, current_frame=self.current_frame)
         view.grid(row=0, column=0, sticky="nesw")
@@ -87,6 +90,9 @@ class App(tk.Tk):
 
     def set_current_report(self, current_report):
         self.current_report.set(current_report)
+
+    def set_current_lexicon(self, current_lexicon):
+        self.current_lexicon.set(current_lexicon)
 
     def create_report(self, report_name, corpus_name, lexicon_names):
         if report_name in self.reports.get():
@@ -99,6 +105,14 @@ class App(tk.Tk):
             report_name: report,
         }
         self.reports.set(reports)
+
+    def create_lexicon(self, lexicon_name, words):
+        lexicon = Lexicon(lexicon_name, words)
+        if lexicon_name in self.lexica.get():
+            self.lexica.get()[lexicon_name] = lexicon
+        else:
+            lexica = {**self.lexica.get(), lexicon_name: lexicon}
+            self.lexica.set(lexica)
 
     def delete_report(self, report_to_delete):
         reports = self.reports.get()

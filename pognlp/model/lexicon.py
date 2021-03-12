@@ -21,6 +21,7 @@ class Lexicon:
         self.words = [Word(*word) for word in words]
         self.directory = os.path.join(constants.lexica_path, name)
         self.toml_path = os.path.join(self.directory, toml_name)
+        self.write()
 
     @staticmethod
     def ls() -> Generator[str, None, None]:
@@ -38,9 +39,9 @@ class Lexicon:
     def write(self):
         if not os.path.exists(self.directory):
             os.makedirs(self.directory, exist_ok=True)
-        report_dict = {
+        lexicon_dict = {
             "name": self.name,
-            "words": [(string, score) for word in self.words],
+            "words": [(word[0], word[1]) for word in self.words],
         }
         with open(self.toml_path, "w") as toml_file:
             toml.dump(lexicon_dict, toml_file)

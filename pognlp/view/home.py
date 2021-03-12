@@ -40,7 +40,7 @@ class HomeView(tk.Frame):
 
         lexicon_button = common.Button(
             top_frame,
-            command=lambda: printme(),
+            command=lambda: controller.set_current_frame("CreateLexiconView"),
             text="Create New Lexicon",
         )
         lexicon_button.configure(padx=10, pady=10)
@@ -64,3 +64,5 @@ class HomeView(tk.Frame):
 
 def printme():
     print(1)
+
+
