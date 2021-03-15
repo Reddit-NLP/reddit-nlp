@@ -34,13 +34,12 @@ class Lexicon:
     def load(name: str) -> Lexicon:
         toml_path = os.path.join(constants.lexica_path, name, toml_name)
         with open(toml_path) as toml_file:
-            return Lexicon(**toml.load(toml_file))
+            return Lexicon(name=name, **toml.load(toml_file))
 
     def write(self):
         if not os.path.exists(self.directory):
             os.makedirs(self.directory, exist_ok=True)
         lexicon_dict = {
-            "name": self.name,
             "words": [(word[0], word[1]) for word in self.words],
         }
         with open(self.toml_path, "w") as toml_file:

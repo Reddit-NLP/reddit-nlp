@@ -75,7 +75,7 @@ class ReportView(tk.Frame):
 
         if self.report.complete:
             report_results = common.Label(
-                frame, text=self.report.results["text"], justify=tk.LEFT
+                frame, text=self.report.get_results(), justify=tk.LEFT
             )
             report_results.grid(column=0, row=4)
 

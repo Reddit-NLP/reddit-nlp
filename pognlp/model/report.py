@@ -5,15 +5,19 @@ import os
 import glob
 from typing import List, Generator
 import time
+import csv
+import itertools
 
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import numpy as np
 import rtoml as toml
 
+from pognlp.analyze import get_analyzer
 import pognlp.constants as constants
 from pognlp.model.corpus import Corpus
+from pognlp.model.lexicon import Lexicon
 
 toml_name = "report.toml"
+output_name = "output.tsv"
 
 
 class Report:
@@ -23,15 +27,15 @@ class Report:
         corpus_name: str,
         lexicon_names: List[str],
         complete=False,
-        results=None,
     ):
         self.name = name
         self.corpus_name = corpus_name
         self.lexicon_names = lexicon_names
         self.complete = complete
-        self.results = results or {}
         self.directory = os.path.join(constants.reports_path, name)
         self.toml_path = os.path.join(self.directory, toml_name)
+        self.output_path = os.path.join(self.directory, output_name)
+        self.write()
 
     @staticmethod
     def ls() -> Generator[str, None, None]:
@@ -44,17 +48,15 @@ class Report:
     def load(name: str) -> Report:
         toml_path = os.path.join(constants.reports_path, name, toml_name)
         with open(toml_path) as toml_file:
-            return Report(**toml.load(toml_file))
+            return Report(name=name, **toml.load(toml_file))
 
     def write(self):
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
         report_dict = {
-            "name": self.name,
             "corpus_name": self.corpus_name,
             "lexicon_names": self.lexicon_names,
             "complete": self.complete,
-            "results": self.results,
         }
         with open(self.toml_path, "w") as toml_file:
             toml.dump(report_dict, toml_file)
@@ -66,48 +68,51 @@ class Report:
         corpus = Corpus.load(self.corpus_name)
 
         n = 0
-        pos = []
-        neu = []
-        neg = []
-        compound = []
+        with open(self.output_path, "w") as output_file:
+            fieldnames = [*corpus.document_metadata_fields]
+            analyzers = {}
+            for lexicon_name in self.lexicon_names:
+                analyzer = get_analyzer(Lexicon.load(lexicon_name))
+                analyzers[lexicon_name] = analyzer
+                fieldnames.append(f"{lexicon_name} positive")
+                fieldnames.append(f"{lexicon_name} neutral")
+                fieldnames.append(f"{lexicon_name} negative")
+                fieldnames.append(f"{lexicon_name} compound")
 
-        analyzer = SentimentIntensityAnalyzer()
+            print(fieldnames)
 
-        for document in corpus.iterate_documents():
-            time.sleep(0.01)  # simulate a slow process
-            print(document["body"])
-            scores = analyzer.polarity_scores(document["body"])
-            pos.append(scores["pos"])
-            neu.append(scores["neu"])
-            neg.append(scores["neg"])
-            compound.append(scores["compound"])
-            n += 1
-            progress_cb(n)
+            writer = csv.DictWriter(output_file, fieldnames=fieldnames)
+            writer.writeheader()
+            for document in corpus.iterate_documents():
+                row_dict = {
+                    field: document[field] for field in corpus.document_metadata_fields
+                }
+                for lexicon_name in self.lexicon_names:
+                    scores = analyzers[lexicon_name].polarity_scores(document["body"])
+                    print(scores)
+                    row_dict[f"{lexicon_name} positive"] = scores["pos"]
+                    row_dict[f"{lexicon_name} neutral"] = scores["neu"]
+                    row_dict[f"{lexicon_name} negative"] = scores["neg"]
+                    row_dict[f"{lexicon_name} compound"] = scores["compound"]
 
-        # TODO for now, print to stdout. later, store results in the class and
-        # call a callback to update the UI
+                writer.writerow(row_dict)
 
-        pos = np.array(pos)
-        neu = np.array(neu)
-        neg = np.array(neg)
-        compound = np.array(compound)
-
-        pos_mean = np.mean(pos)
-        neu_mean = np.mean(neu)
-        neg_mean = np.mean(neg)
-        compound_mean = np.mean(compound)
-
-        pos_std = np.std(pos)
-        neu_std = np.std(neu)
-        neg_std = np.std(neg)
-        compound_std = np.std(compound)
-
-        self.results[
-            "text"
-        ] = "Analyzing corpus using VADER (Valence Aware Dictionary and sEntiment Reasoner)\n"
-
-        self.results["text"] += f"{pos_mean=} {neu_mean=} {neg_mean=}\n"
-        self.results["text"] += f"{pos_std=} {neu_std=} {neg_std=}\n"
+                n += 1
+                progress_cb(n)
 
         self.complete = True
         self.write()
+
+    def get_results(self):
+        if not self.complete:
+            return None
+
+        results = ""
+        with open(self.output_path) as output_file:
+            reader = csv.DictReader(output_file)
+            for row in itertools.islice(
+                reader, 3
+            ):  # TODO this is temporary, soon modify this to pass data to charts in ReportView
+                results += repr(row) + "\n"
+
+        return results

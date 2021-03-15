@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 import datetime
 import glob
-from typing import Generator
+from typing import List, Generator
 import os
 import pickle
 
@@ -21,6 +21,11 @@ class Corpus(ABC):
         self.toml_path = os.path.join(self.directory, "corpus.toml")
         self.compiled = False
 
+    @property
+    @abstractmethod
+    def document_metadata_fields(self) -> List[str]:
+        pass
+
     @abstractmethod
     def write(self) -> None:
         pass
@@ -34,7 +39,7 @@ class Corpus(ABC):
             corpus_by_type = {corpus.corpus_type: corpus for corpus in (RedditCorpus,)}  # type: ignore
             corpus_cls = corpus_by_type[corpus_dict["type"]]
             del corpus_dict["type"]
-            return corpus_cls(**corpus_dict)
+            return corpus_cls(name=name, **corpus_dict)
 
     @staticmethod
     def ls():
@@ -54,6 +59,8 @@ class Corpus(ABC):
 class RedditCorpus(Corpus):
     corpus_type = "reddit"
 
+    document_metadata_fields = ["author", "score"]
+
     def __init__(
         self, name: str, compiled=False, subreddits=None, start_time=None, end_time=None
     ):
@@ -72,7 +79,6 @@ class RedditCorpus(Corpus):
         if not os.path.exists(self.directory):
             os.makedirs(self.directory, exist_ok=True)
         corpus_dict = {
-            "name": self.name,
             "type": RedditCorpus.corpus_type,
             "subreddits": self.subreddits,
             "start_time": self.start_time.isoformat(),
@@ -105,4 +111,6 @@ class RedditCorpus(Corpus):
             for comment in pickle.load(pickle_file):
                 yield {
                     "body": comment.body,
+                    "author": comment.author,
+                    "score": comment.score,
                 }
