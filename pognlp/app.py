@@ -16,6 +16,7 @@ from pognlp.view.create_report import CreateReportView
 from pognlp.view.report_list import ReportListView
 from pognlp.view.report_view import ReportView
 from pognlp.view.create_lexicon import CreateLexiconView
+from pognlp.view.create_corpus import CreateCorpusView
 
 
 class AppView(tk.Frame):
@@ -44,6 +45,7 @@ class AppView(tk.Frame):
             CreateLexiconView,
             ReportListView,
             ReportView,
+            CreateCorpusView,
         ):
             page_name = F.__name__
             frame = F(parent=content, controller=controller)

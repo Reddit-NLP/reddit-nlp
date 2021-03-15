@@ -26,7 +26,7 @@ class HomeView(tk.Frame):
         # top_navbar common
         download_button = common.Button(
             top_frame,
-            command=lambda: printme(),
+            command=lambda: controller.set_current_frame("CreateCorpusView"),
             text="Download New Data",
         )
         download_button.configure(padx=10, pady=10)
