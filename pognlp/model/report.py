@@ -98,7 +98,8 @@ class Report:
                 writer.writerow(row_dict)
 
                 n += 1
-                progress_cb(n)
+                if progress_cb is not None:
+                    progress_cb(n)
 
         self.complete = True
         self.write()

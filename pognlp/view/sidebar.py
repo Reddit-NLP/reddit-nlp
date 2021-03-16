@@ -69,19 +69,26 @@ class Sidebar(tk.Frame):
         )
         home_item.grid(column=0, row=1)
 
+        corpora_item = SideListbox(
+            master=self,
+            text="Corpora",
+            on_select=lambda _: controller.set_current_frame("CorpusListView"),
+        )
+        corpora_item.grid(column=0, row=2)
+
         lexica_item = SideListbox(
             master=self,
             text="Lexica",
             on_select=lambda _: controller.set_current_frame("LexiconListView"),
         )
-        lexica_item.grid(column=0, row=2)
+        lexica_item.grid(column=0, row=3)
 
         reports_item = SideListbox(
             master=self,
             text="Reports",
             on_select=lambda _: controller.set_current_frame("ReportListView"),
         )
-        reports_item.grid(column=0, row=3)
+        reports_item.grid(column=0, row=4)
 
 
 #         dictionary_item = SideListbox(

@@ -10,6 +10,7 @@ import pickle
 
 import rtoml as toml
 import praw
+from psaw import PushshiftAPI
 
 import pognlp.constants as constants
 
@@ -31,6 +32,11 @@ class Corpus(ABC):
         pass
 
     @staticmethod
+    @abstractmethod
+    def from_dict(corpus_dict: dict) -> Corpus:
+        pass
+
+    @staticmethod
     def load(name: str) -> Corpus:
         toml_path = os.path.join(constants.corpora_path, name, "corpus.toml")
         with open(toml_path) as toml_file:
@@ -39,7 +45,7 @@ class Corpus(ABC):
             corpus_by_type = {corpus.corpus_type: corpus for corpus in (RedditCorpus,)}  # type: ignore
             corpus_cls = corpus_by_type[corpus_dict["type"]]
             del corpus_dict["type"]
-            return corpus_cls(name=name, **corpus_dict)
+            return corpus_cls.from_dict({"name": name, **corpus_dict})
 
     @staticmethod
     def ls():
@@ -66,14 +72,21 @@ class RedditCorpus(Corpus):
     ):
         super().__init__(name)
         self.subreddits = subreddits or []
-        self.start_time = (
-            datetime.datetime.fromisoformat(start_time) or datetime.datetime.now()
-        )
-        self.end_time = (
-            datetime.datetime.fromisoformat(end_time) or datetime.datetime.now()
-        )
+        self.start_time = start_time
+        self.end_time = end_time
         self.comments_pickle_path = os.path.join(self.directory, "comments.pickle")
+
         self.write()
+
+    @staticmethod
+    def from_dict(corpus_dict: dict):
+        return RedditCorpus(
+            name=corpus_dict["name"],
+            start_time=datetime.datetime.fromisoformat(corpus_dict["start_time"]),
+            end_time=datetime.datetime.fromisoformat(corpus_dict["end_time"]),
+            subreddits=corpus_dict["subreddits"],
+            compiled=corpus_dict["compiled"],
+        )
 
     def write(self):
         if not os.path.exists(self.directory):
@@ -88,21 +101,39 @@ class RedditCorpus(Corpus):
         with open(self.toml_path, "w") as toml_file:
             toml.dump(corpus_dict, toml_file)
 
-    def compile(self, compile_params):
+    def compile(self, progress_cb=None):
+        # def compile(self, compile_params):
         # client_id = compile_params["client_id"]
         # client_secret = compile_params["client_secret"]
+        if self.compiled:
+            return
+
         reddit = praw.Reddit(
             client_id=os.environ["CLIENT_ID"],
             client_secret=os.environ["CLIENT_SECRET"],
             user_agent="linux:org.reddit-nlp.reddit-nlp:v0.1.0 (by /u/YeetoCalrissian)",
         )
+        api = PushshiftAPI(reddit)
         comments = []
+
+        start_epoch = int(self.start_time.timestamp())
+        end_epoch = int(self.end_time.timestamp())
+
+        n = 0
         for subreddit in self.subreddits:
-            for submission in reddit.subreddit(subreddit).new(limit=20):
-                for comment in submission.comments.list():
-                    comments.append(comment)
+            print(subreddit, start_epoch, end_epoch)
+            for comment in api.search_comments(
+                after=start_epoch, before=end_epoch, subreddit=subreddit
+            ):
+                print(comment.body)
+                comments.append(comment)
+                n += 1
+                if progress_cb is not None:
+                    progress_cb(n)
+
         with open(self.comments_pickle_path, "wb") as pickle_file:
             pickle.dump(comments, pickle_file)
+
         self.compiled = True
         self.write()
 

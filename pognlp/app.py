@@ -17,6 +17,7 @@ from pognlp.view.report_list import ReportListView
 from pognlp.view.report_view import ReportView
 from pognlp.view.create_lexicon import CreateLexiconView
 from pognlp.view.create_corpus import CreateCorpusView
+from pognlp.view.corpus_list import CorpusListView
 
 
 class AppView(tk.Frame):
@@ -45,6 +46,7 @@ class AppView(tk.Frame):
             CreateLexiconView,
             ReportListView,
             ReportView,
+            CorpusListView,
             CreateCorpusView,
         ):
             page_name = F.__name__
@@ -115,6 +117,13 @@ class App(tk.Tk):
         else:
             lexica = {**self.lexica.get(), lexicon_name: lexicon}
             self.lexica.set(lexica)
+
+    def add_corpus(self, corpus):
+        corpora = {
+            **self.corpora.get(),
+            corpus.name: corpus,
+        }
+        self.corpora.set(corpora)
 
     def delete_report(self, report_to_delete):
         reports = self.reports.get()

@@ -80,7 +80,7 @@ class ReportView(tk.Frame):
             report_results.grid(column=0, row=4)
 
     def run_progress_cb(self, progress):
-        self.run_progress["value"] = progress * 100
+        self.run_progress["value"] = progress
 
     def run_report(self):
         self.run_in_progress = True
