@@ -5,6 +5,7 @@ import datetime
 import glob
 from typing import List, Generator
 import os
+import shutil
 import pickle
 
 
@@ -61,6 +62,9 @@ class Corpus(ABC):
     def compile(self, compile_params) -> None:
         self.compiled = True
 
+    def delete(self):
+        shutil.rmtree(self.directory)
+
 
 class RedditCorpus(Corpus):
     corpus_type = "reddit"
@@ -101,16 +105,16 @@ class RedditCorpus(Corpus):
         with open(self.toml_path, "w") as toml_file:
             toml.dump(corpus_dict, toml_file)
 
-    def compile(self, progress_cb=None):
-        # def compile(self, compile_params):
-        # client_id = compile_params["client_id"]
-        # client_secret = compile_params["client_secret"]
+    def compile(self, compile_params, progress_cb=None):
         if self.compiled:
             return
 
+        client_id = compile_params["client_id"]
+        client_secret = compile_params["client_secret"]
+
         reddit = praw.Reddit(
-            client_id=os.environ["CLIENT_ID"],
-            client_secret=os.environ["CLIENT_SECRET"],
+            client_id=client_id,
+            client_secret=client_secret,
             user_agent="linux:org.reddit-nlp.reddit-nlp:v0.1.0 (by /u/YeetoCalrissian)",
         )
         api = PushshiftAPI(reddit)

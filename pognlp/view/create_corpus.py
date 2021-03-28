@@ -16,21 +16,33 @@ class CreateCorpusView(tk.Frame):
         tk.Frame.__init__(self, parent, **kwargs)
         self.controller = controller
         self.configure(bg=theme.background_color)
-        self.grid_rowconfigure(1, weight=1)
+        # self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
         # labels
         self.reddit_label = common.Label(self, text="Download from Reddit")
         self.reddit_label.grid(columnspan=2, sticky="new")
+
         self.start_label = common.Label(self, text="Start Date and (optional) Time")
         self.start_label.grid(column=0, row=1, sticky="new")
         self.end_label = common.Label(self, text="End Date and (optional) Time")
         self.end_label.grid(column=0, row=2, sticky="new")
         self.subs_label = common.Label(self, text="Subreddit(s), one per line")
         self.subs_label.grid(column=0, row=3, sticky="new")
+
+        self.client_id_label = common.Label(self, text="Reddit Client ID")
+        self.client_id_label.grid(column=0, row=4, sticky="new")
+        self.client_secret_label = common.Label(self, text="Reddit Client Secret")
+        self.client_secret_label.grid(column=0, row=5, sticky="new")
+
         self.name_label = common.Label(self, text="Corpus Name")
-        self.name_label.grid(column=0, row=4, sticky="new")
+        self.name_label.grid(column=0, row=6, sticky="new")
+
+        initial_client_id = self.controller.settings.get().get("REDDIT_CLIENT_ID") or ""
+        initial_client_secret = (
+            self.controller.settings.get().get("REDDIT_CLIENT_SECRET") or ""
+        )
 
         self.start_entry = common.Entry(self)
         self.start_entry.grid(column=1, row=1, sticky="new")
@@ -38,8 +50,17 @@ class CreateCorpusView(tk.Frame):
         self.end_entry.grid(column=1, row=2, sticky="new")
         self.subs_entry = tk.Text(self)
         self.subs_entry.grid(column=1, row=3, sticky="new")
+
+        self.client_id_entry = common.Entry(self)
+        self.client_id_entry.grid(column=1, row=4, sticky="new")
+        self.client_id_entry.insert(tk.END, initial_client_id)
+
+        self.client_secret_entry = common.Entry(self)
+        self.client_secret_entry.grid(column=1, row=5, sticky="new")
+        self.client_secret_entry.insert(tk.END, initial_client_secret)
+
         self.name_entry = common.Entry(self)
-        self.name_entry.grid(column=1, row=4, sticky="new")
+        self.name_entry.grid(column=1, row=6, sticky="new")
 
         # button
         bottom_frame = tk.Frame(self)
@@ -80,7 +101,7 @@ class CreateCorpusView(tk.Frame):
             tk.messagebox.showerror("Error", "Please enter a name.")
             return
         text = self.subs_entry.get("1.0", "end")
-        subs = text.split("\n")
+        subs = [sub for sub in text.split("\n") if sub]
         for subreddit in subs:
             if "," in subreddit:
                 tk.messagebox.showerror(
@@ -89,19 +110,39 @@ class CreateCorpusView(tk.Frame):
                 )
                 return
 
+        client_id = self.client_id_entry.get().strip()
+        client_secret = self.client_secret_entry.get().strip()
+        if not client_id:
+            tk.messagebox.showerror(
+                "Error",
+                "Please enter a Reddit Client ID.",
+            )
+            return
+        if not client_secret:
+            tk.messagebox.showerror(
+                "Error",
+                "Please enter a Reddit Client Secret.",
+            )
+            return
+
+        self.controller.set_reddit_credentials(client_id, client_secret)
+
         self.download_in_progress = True
 
-        print(start, end, name, subs)
-
         def download_and_update():
-            print("doin it")
             corpus = RedditCorpus(
                 name,
                 subreddits=subs,
                 start_time=start,
                 end_time=end,
             )
-            corpus.compile(progress_cb=self.download_progress_cb)
+            corpus.compile(
+                {
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                },
+                progress_cb=self.download_progress_cb,
+            )
 
             add_corpus = lambda: self.controller.add_corpus(corpus)
             self.controller.tkt(add_corpus)

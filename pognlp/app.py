@@ -3,8 +3,11 @@ from tkthread import tk, TkThread
 import tkinter.font as font
 import sys
 
+import rtoml as toml
+
 import pognlp.util as util
 
+import pognlp.constants as constants
 from pognlp.model.corpus import Corpus, RedditCorpus
 from pognlp.model.report import Report
 from pognlp.model.lexicon import Lexicon
@@ -86,8 +89,33 @@ class App(tk.Tk):
         self.current_report = util.Observable(None)
         self.current_lexicon = util.Observable(None)
 
+        try:
+            with open(constants.settings_path, "r") as settings_file:
+                settings = toml.load(settings_file)
+        except (FileNotFoundError, toml.TomlParsingError):
+            settings = {
+                "REDDIT_CLIENT_ID": None,
+                "REDDIT_CLIENT_SECRET": None,
+            }
+        self.settings = util.Observable(settings)
+
+        def persist_settings(settings: dict):
+            with open(constants.settings_path, "w") as settings_file:
+                toml.dump(settings, settings_file)
+
+        self.settings.subscribe(persist_settings)
+
         view = AppView(self, self, current_frame=self.current_frame)
         view.grid(row=0, column=0, sticky="nesw")
+
+    def set_reddit_credentials(self, client_id: str, client_secret: str) -> None:
+        self.settings.set(
+            {
+                **self.settings.get(),
+                "REDDIT_CLIENT_ID": client_id,
+                "REDDIT_CLIENT_SECRET": client_secret,
+            }
+        )
 
     def set_current_frame(self, frame_name):
         self.current_frame.set(frame_name)
@@ -124,6 +152,17 @@ class App(tk.Tk):
             corpus.name: corpus,
         }
         self.corpora.set(corpora)
+
+    def delete_corpus(self, corpus_to_delete):
+        corpora = self.corpora.get()
+        self.corpora.set(
+            {
+                name: corpus
+                for name, corpus in corpora.items()
+                if name != corpus_to_delete
+            }
+        )
+        corpora[corpus_to_delete].delete()
 
     def delete_report(self, report_to_delete):
         reports = self.reports.get()

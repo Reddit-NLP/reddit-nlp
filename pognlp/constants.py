@@ -10,6 +10,8 @@ reddit_user_agent = "linux:org.reddit-nlp.reddit-nlp:v0.1.0 (by /u/YeetoCalrissi
 
 storage_path = os.path.join(user_data_dir(app_name, app_author))
 
+settings_path = os.path.join(storage_path, "settings.toml")
+
 corpora_path = os.path.join(storage_path, "corpora")
 
 lexica_path = os.path.join(storage_path, "lexica")

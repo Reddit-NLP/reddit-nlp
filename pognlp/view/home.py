@@ -60,9 +60,3 @@ class HomeView(tk.Frame):
             size=12,
         )
         welcome_message.grid(column=0, row=2)
-
-
-def printme():
-    print(1)
-
-
