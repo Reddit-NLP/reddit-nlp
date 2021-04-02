@@ -1,8 +1,11 @@
 from collections import namedtuple
 import codecs
 import tempfile
+from typing import Union
 
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+from pognlp.model.lexicon import DefaultLexicon, Lexicon
 
 AnalysisResult = namedtuple("AnalysisResult", ["document", "score"])
 
@@ -19,14 +22,14 @@ class CustomSentimentIntensityAnalyzer(SentimentIntensityAnalyzer):
         self.emojis = {}
 
 
-def get_lexicon_file_lines(lexicon):
+def get_lexicon_file_lines(lexicon: Lexicon):
     for word in lexicon.words:
         string = word.string.replace("\t", " ")  # sanitize for tabs
         yield f"{string}\t{word.score}"
 
 
-def get_analyzer(lexicon=None):
-    if lexicon is None:
+def get_analyzer(lexicon: Union[Lexicon, DefaultLexicon]):
+    if isinstance(lexicon, DefaultLexicon):
         return SentimentIntensityAnalyzer()
     lexicon_file_contents = "\n".join(get_lexicon_file_lines(lexicon))
     return CustomSentimentIntensityAnalyzer(lexicon_file_contents)

@@ -67,6 +67,7 @@ class LexiconListView(tk.Frame):
         self.controller.set_current_frame("CreateLexiconView")
 
     def create_lexicon(self):
+        self.controller.set_current_lexicon(None)
         self.controller.set_current_frame("CreateLexiconView")
 
     def update_listbox(self, lexica):

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import itertools
 import shutil
 import glob
 import os
-from typing import List, Tuple, Generator
+from typing import List, Tuple, Iterable
 from collections import namedtuple
 
 import rtoml as toml
@@ -15,6 +16,10 @@ toml_name = "lexicon.toml"
 Word = namedtuple("Word", ["string", "score"])
 
 
+class DefaultLexicon:
+    name = "VADER Default Lexicon"
+
+
 class Lexicon:
     def __init__(self, name: str, words: List[Tuple[str, float]]):
         self.name = name
@@ -24,14 +29,17 @@ class Lexicon:
         self.write()
 
     @staticmethod
-    def ls() -> Generator[str, None, None]:
-        return (
+    def ls() -> Iterable[str]:
+        lexicon_names = (
             os.path.basename(path)
             for path in glob.iglob(os.path.join(constants.lexica_path, "*"))
         )
+        return itertools.chain((DefaultLexicon.name,), lexicon_names)
 
     @staticmethod
-    def load(name: str) -> Lexicon:
+    def load(name: str) -> Lexicon | DefaultLexicon:
+        if name == DefaultLexicon.name:
+            return DefaultLexicon()
         toml_path = os.path.join(constants.lexica_path, name, toml_name)
         with open(toml_path) as toml_file:
             return Lexicon(name=name, **toml.load(toml_file))
