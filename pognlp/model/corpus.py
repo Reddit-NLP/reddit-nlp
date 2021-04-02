@@ -69,7 +69,7 @@ class Corpus(ABC):
 class RedditCorpus(Corpus):
     corpus_type = "reddit"
 
-    document_metadata_fields = ["author", "score"]
+    document_metadata_fields = ["timestamp", "score"]
 
     def __init__(
         self, name: str, compiled=False, subreddits=None, start_time=None, end_time=None
@@ -129,7 +129,6 @@ class RedditCorpus(Corpus):
             for comment in api.search_comments(
                 after=start_epoch, before=end_epoch, subreddit=subreddit
             ):
-                print(comment.body)
                 comments.append(comment)
                 n += 1
                 if progress_cb is not None:
@@ -146,6 +145,8 @@ class RedditCorpus(Corpus):
             for comment in pickle.load(pickle_file):
                 yield {
                     "body": comment.body,
-                    "author": comment.author,
                     "score": comment.score,
+                    "timestamp": datetime.datetime.utcfromtimestamp(
+                        comment.created_utc
+                    ),
                 }

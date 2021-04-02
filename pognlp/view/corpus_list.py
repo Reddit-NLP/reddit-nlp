@@ -31,7 +31,6 @@ class CorpusListView(tk.Frame):
         top_frame.grid(column=0, row=0, sticky="ew")
         top_frame.grid_columnconfigure(0, minsize=100, weight=1)
         top_frame.grid_columnconfigure(1, minsize=100, weight=1)
-        top_frame.grid_columnconfigure(2, minsize=100, weight=1)
         top_frame.grid_rowconfigure(0, minsize=100, weight=1)
 
         create_corpus_button = common.Button(

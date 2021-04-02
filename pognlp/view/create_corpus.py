@@ -48,7 +48,7 @@ class CreateCorpusView(tk.Frame):
         self.start_entry.grid(column=1, row=1, sticky="new")
         self.end_entry = common.Entry(self)
         self.end_entry.grid(column=1, row=2, sticky="new")
-        self.subs_entry = tk.Text(self)
+        self.subs_entry = common.Text(self)
         self.subs_entry.grid(column=1, row=3, sticky="new")
 
         self.client_id_entry = common.Entry(self)

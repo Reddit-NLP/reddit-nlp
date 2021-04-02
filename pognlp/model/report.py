@@ -8,6 +8,7 @@ import time
 import csv
 import itertools
 
+import pandas as pd
 import numpy as np
 import rtoml as toml
 
@@ -18,6 +19,8 @@ from pognlp.model.lexicon import Lexicon
 
 toml_name = "report.toml"
 output_name = "output.tsv"
+
+output_delimiter = "\t"
 
 
 class Report:
@@ -81,7 +84,9 @@ class Report:
 
             print(fieldnames)
 
-            writer = csv.DictWriter(output_file, fieldnames=fieldnames)
+            writer = csv.DictWriter(
+                output_file, fieldnames=fieldnames, delimiter=output_delimiter
+            )
             writer.writeheader()
             for document in corpus.iterate_documents():
                 row_dict = {
@@ -104,16 +109,8 @@ class Report:
         self.complete = True
         self.write()
 
-    def get_results(self):
+    def get_results(self) -> pd.DataFrame:
         if not self.complete:
             return None
 
-        results = ""
-        with open(self.output_path) as output_file:
-            reader = csv.DictReader(output_file)
-            for row in itertools.islice(
-                reader, 3
-            ):  # TODO this is temporary, soon modify this to pass data to charts in ReportView
-                results += repr(row) + "\n"
-
-        return results
+        return pd.read_csv(self.output_path, sep=output_delimiter, parse_dates=True)
