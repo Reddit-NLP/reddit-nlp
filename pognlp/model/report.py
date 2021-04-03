@@ -71,13 +71,15 @@ class Report:
     def delete(self):
         shutil.rmtree(self.directory)
 
-    def run(self, progress_cb=None):
+    def run(self, progress_cb=None, include_body=False):
         corpus = Corpus.load(self.corpus_name)
 
         n = 0
 
         output_fieldnames = [*corpus.document_metadata_fields]
         analyzers = {}
+        if include_body:
+            output_fieldnames.insert(0, "body")
 
         frequencies = Counter()
         frequency_fieldnames = [
@@ -131,6 +133,9 @@ class Report:
                 output_row_dict = {
                     field: document[field] for field in corpus.document_metadata_fields
                 }
+                if include_body:
+                    sanitized_body = document["body"].replace("\n", " ").replace("\t", " ")
+                    output_row_dict["body"] = sanitized_body
                 for lexicon_name in self.lexicon_names:
                     scores = analyzers[lexicon_name].polarity_scores(document["body"])
                     output_row_dict[f"{lexicon_name} positive"] = scores["pos"]

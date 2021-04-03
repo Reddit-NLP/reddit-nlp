@@ -130,14 +130,15 @@ class ReportView(tk.Frame):
             self.export,
             "Export",
         )
-        #self.include_body = tk.BooleanVar()
-        #include_body_button = tk.Checkbutton(, text="Include body of comments in report", variable=self.include_body, onvalue=True, offvalue=False)
 
         if self.run_in_progress:
             self.run_progress.grid(column=0, row=3)
         else:
             run_report_button.grid(column=0, row=3)
-            #include_body_button.grid(column=1, row=3)
+
+            self.include_body = tk.BooleanVar()
+            include_body_button = tk.Checkbutton(frame, text="Include body of comments in report", variable=self.include_body, onvalue=True, offvalue=False)
+            include_body_button.grid(column=1, row=3)
 
         if self.report.complete:
             # report_results = common.Label(
@@ -176,7 +177,6 @@ class ReportView(tk.Frame):
         self.run_progress["value"] = progress
 
     def run_report(self):
-        #print(self.include_body)
         self.run_in_progress = True
         self.update_dashboard(None)
 
@@ -184,7 +184,7 @@ class ReportView(tk.Frame):
             self.report.run(
                 progress_cb=lambda progress: self.controller.tkt(
                     self.run_progress_cb, progress
-                )
+                ), include_body=self.include_body.get()
             )
             self.run_in_progress = False
             self.controller.tkt(self.controller.reports.update)
