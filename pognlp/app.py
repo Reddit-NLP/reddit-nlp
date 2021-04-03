@@ -103,7 +103,7 @@ class App(tk.Tk):
             with open(constants.settings_path, "w") as settings_file:
                 toml.dump(settings, settings_file)
 
-        self.settings.subscribe(persist_settings)
+        self.settings.subscribe(persist_settings, call=False)
 
         view = AppView(self, self, current_frame=self.current_frame)
         view.grid(row=0, column=0, sticky="nesw")
