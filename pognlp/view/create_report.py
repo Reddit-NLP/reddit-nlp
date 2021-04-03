@@ -19,13 +19,17 @@ class CreateReportView(tk.Frame):
         # labels
         self.corpus_label = common.Label(self, text="Select a Corpus")
         self.corpus_label.grid(column=0, row=0, rowspan=1, sticky="sew")
-        self.lexicon_label = common.Label(self, text="Select a Lexicon")
+        self.lexicon_label = common.Label(
+            self, text="Select Lexica (click to select multiple)"
+        )
         self.lexicon_label.grid(column=1, row=0, rowspan=1, sticky="sew")
 
         self.corpus_listbox = common.Listbox(self, exportselection=0)
         self.corpus_listbox.grid(column=0, row=1, sticky="nsew")
 
-        self.lexicon_listbox = common.Listbox(self, exportselection=0)
+        self.lexicon_listbox = common.Listbox(
+            self, selectmode="multiple", exportselection=0
+        )
         self.lexicon_listbox.grid(column=1, row=1, sticky="nsew")
 
         self.corpus_names = []
@@ -69,7 +73,7 @@ class CreateReportView(tk.Frame):
 
         self.lexicon_listbox.delete(0, tk.END)
 
-        # add lexica to "select a lexicon" list
+        # add lexica to list
         for lexicon_name in self.lexicon_names:
             self.lexicon_listbox.insert(tk.END, lexicon_name)
 

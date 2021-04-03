@@ -77,13 +77,11 @@ class CreateLexiconView(tk.Frame):
         self.controller.set_current_frame("LexiconView")
 
     def update_info(self, data):
-        print("updating")
         self.confirm_button.config(state="normal")
         self.name_entry.config(state="normal")
         self.words_text.config(state="normal")
         self.name_entry.delete(0, tk.END)
         self.words_text.delete("1.0", "end")
-        print("deleted")
         if self.controller.current_lexicon.get() is None:
             return
         lexicon = self.controller.lexica.get()[self.controller.current_lexicon.get()]
@@ -95,7 +93,6 @@ class CreateLexiconView(tk.Frame):
                 "1.0",
                 "The default VADER lexicon can't be modified since it's distributed with VADER. You can view it here: https://github.com/cjhutto/vaderSentiment/blob/master/vaderSentiment/vader_lexicon.txt",
             )
-            print("inserted")
             self.name_entry.config(state="disabled")
             self.words_text.config(state="disabled")
             self.confirm_button.config(state="disabled")
