@@ -37,18 +37,20 @@ class ReportView(tk.Frame):
         fig = plt.figure()
         axes = fig.add_subplot(111)
 
+        # Not sure why, but we need to invert the x axis so left -> right is past -> present.
+        axes.invert_xaxis()
+
+        axes.set_title("Compound Sentiment Scores over Time")
+        axes.set_xlabel("Datetime")
+        axes.set_ylabel("Sentiment Score")
+
         compound_keys = [
             key for key in list(df.columns.values) if key.endswith("compound")
         ]
 
-        df.plot(ax=axes, x="timestamp", y=compound_keys[0])
+        df.plot(ax=axes, x="timestamp", y=compound_keys)
 
         fig.autofmt_xdate()
-
-        #         y = df[compound_keys[0]].to_numpy()
-
-        # plot = fig.add_subplot(111)
-        # plot.plot(timestamps, y)
 
         return fig
 
@@ -64,8 +66,6 @@ class ReportView(tk.Frame):
         if current_report is None:
             self.report = None
             return
-
-        print("report updated, report is", current_report)
 
         self.report = self.controller.reports.get()[current_report]
 

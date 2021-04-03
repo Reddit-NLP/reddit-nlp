@@ -6,8 +6,10 @@ import glob
 from typing import List, Generator
 import time
 import csv
+from collections import defaultdict, Counter
 import itertools
 
+import spacy
 import pandas as pd
 import numpy as np
 import rtoml as toml
@@ -15,12 +17,13 @@ import rtoml as toml
 from pognlp.analyze import get_analyzer
 import pognlp.constants as constants
 from pognlp.model.corpus import Corpus
-from pognlp.model.lexicon import Lexicon
+from pognlp.model.lexicon import DefaultLexicon, Lexicon
 
 toml_name = "report.toml"
 output_name = "output.tsv"
+frequency_name = "frequency.tsv"
 
-output_delimiter = "\t"
+delimiter = "\t"
 
 
 class Report:
@@ -38,6 +41,7 @@ class Report:
         self.directory = os.path.join(constants.reports_path, name)
         self.toml_path = os.path.join(self.directory, toml_name)
         self.output_path = os.path.join(self.directory, output_name)
+        self.frequency_path = os.path.join(self.directory, frequency_name)
         self.write()
 
     @staticmethod
@@ -71,40 +75,90 @@ class Report:
         corpus = Corpus.load(self.corpus_name)
 
         n = 0
-        with open(self.output_path, "w") as output_file:
-            fieldnames = [*corpus.document_metadata_fields]
-            analyzers = {}
-            for lexicon_name in self.lexicon_names:
-                analyzer = get_analyzer(Lexicon.load(lexicon_name))
-                analyzers[lexicon_name] = analyzer
-                fieldnames.append(f"{lexicon_name} positive")
-                fieldnames.append(f"{lexicon_name} neutral")
-                fieldnames.append(f"{lexicon_name} negative")
-                fieldnames.append(f"{lexicon_name} compound")
 
-            print(fieldnames)
+        output_fieldnames = [*corpus.document_metadata_fields]
+        analyzers = {}
 
-            writer = csv.DictWriter(
-                output_file, fieldnames=fieldnames, delimiter=output_delimiter
+        frequencies = Counter()
+        frequency_fieldnames = [
+            "lemmatized word",
+            "lexicon name",
+            "frequency per 10,000",
+        ]
+        lexicon_lemmas = defaultdict(lambda: [])
+        all_lexicon_lemmas = set()
+        total_token_count = 0
+
+        nlp = spacy.load("en_core_web_sm", disable=["parser", "ner"])
+
+        for lexicon_name in self.lexicon_names:
+            lexicon = Lexicon.load(lexicon_name)
+            analyzer = get_analyzer(lexicon)
+            analyzers[lexicon_name] = analyzer
+            output_fieldnames.append(f"{lexicon_name} positive")
+            output_fieldnames.append(f"{lexicon_name} neutral")
+            output_fieldnames.append(f"{lexicon_name} negative")
+            output_fieldnames.append(f"{lexicon_name} compound")
+            if not isinstance(lexicon, DefaultLexicon):
+                for word in lexicon.words:
+                    lemmatized = " ".join(
+                        token.lemma_ for token in nlp(word.string)
+                    ).lower()
+                    lexicon_lemmas[lexicon_name].append(lemmatized)
+                    all_lexicon_lemmas.add(lemmatized)
+
+        with open(self.output_path, "w") as output_file, open(
+            self.frequency_path, "w"
+        ) as frequency_file:
+            output_writer = csv.DictWriter(
+                output_file, fieldnames=output_fieldnames, delimiter=delimiter
             )
-            writer.writeheader()
+            output_writer.writeheader()
+
+            frequency_writer = csv.DictWriter(
+                frequency_file, fieldnames=frequency_fieldnames, delimiter=delimiter
+            )
+            frequency_writer.writeheader()
+
             for document in corpus.iterate_documents():
-                row_dict = {
+                doc = nlp(document["body"])
+                for token in doc:
+                    total_token_count += 1
+                    lemma = token.lemma_.lower()
+                    if lemma in all_lexicon_lemmas:
+                        frequencies[lemma] += 1
+
+                output_row_dict = {
                     field: document[field] for field in corpus.document_metadata_fields
                 }
                 for lexicon_name in self.lexicon_names:
                     scores = analyzers[lexicon_name].polarity_scores(document["body"])
-                    print(scores)
-                    row_dict[f"{lexicon_name} positive"] = scores["pos"]
-                    row_dict[f"{lexicon_name} neutral"] = scores["neu"]
-                    row_dict[f"{lexicon_name} negative"] = scores["neg"]
-                    row_dict[f"{lexicon_name} compound"] = scores["compound"]
+                    output_row_dict[f"{lexicon_name} positive"] = scores["pos"]
+                    output_row_dict[f"{lexicon_name} neutral"] = scores["neu"]
+                    output_row_dict[f"{lexicon_name} negative"] = scores["neg"]
+                    output_row_dict[f"{lexicon_name} compound"] = scores["compound"]
 
-                writer.writerow(row_dict)
+                output_writer.writerow(output_row_dict)
 
                 n += 1
                 if progress_cb is not None:
                     progress_cb(n)
+
+            for lexicon_name in self.lexicon_names:
+                for lemma in lexicon_lemmas[lexicon_name]:
+                    try:
+                        relative_frequency = (
+                            frequencies[lemma] * 10000 / total_token_count
+                        )
+                    except ZeroDivisionError:
+                        relative_frequency = 0
+                    frequency_writer.writerow(
+                        {
+                            "lemmatized word": lemma,
+                            "lexicon name": lexicon_name,
+                            "frequency per 10,000": relative_frequency,
+                        }
+                    )
 
         self.complete = True
         self.write()
@@ -113,4 +167,9 @@ class Report:
         if not self.complete:
             return None
 
-        return pd.read_csv(self.output_path, sep=output_delimiter, parse_dates=True)
+        return pd.read_csv(self.output_path, sep=delimiter, parse_dates=True)
+
+    def get_frequencies(self) -> pd.DataFrame:
+        if not self.complete:
+            return None
+        return pd.read_csv(self.frequency_path, sep=delimiter)
