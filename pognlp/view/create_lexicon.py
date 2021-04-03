@@ -55,6 +55,11 @@ class CreateLexiconView(tk.Frame):
         word_text = self.words_text.get("1.0", "end")
         word_set = word_text.split("\n")
         word_list = []
+
+        if not word_set:
+            tk.messagebox.showerror("Error", "Enter at least one word-number pair.")
+            return
+
         try:
             for word in word_set:
                 if word != "":
@@ -74,7 +79,7 @@ class CreateLexiconView(tk.Frame):
         self.name_entry.delete(0, tk.END)
         self.words_text.delete("1.0", "end")
         self.controller.set_current_lexicon(None)
-        self.controller.set_current_frame("LexiconView")
+        self.controller.set_current_frame("LexiconListView")
 
     def update_info(self, data):
         self.confirm_button.config(state="normal")

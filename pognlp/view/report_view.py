@@ -1,11 +1,13 @@
 from tkthread import tk
 import tkinter.ttk as ttk
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import pognlp.view.theme as theme
 import pognlp.view.common as common
 import pognlp.util as util
+from pognlp.model.lexicon import DefaultLexicon
 
 
 class ReportView(tk.Frame):
@@ -27,12 +29,8 @@ class ReportView(tk.Frame):
         self.controller.current_report.subscribe(self.update_dashboard)
         self.controller.reports.subscribe(self.update_dashboard)
 
-    def make_figure(self):
-        df = self.report.get_results()
+    def make_timeseries_figure(self, df):
         df.sort_values("timestamp", ascending=False)
-
-        if df is None:
-            return
 
         fig = plt.figure()
         axes = fig.add_subplot(111)
@@ -41,14 +39,40 @@ class ReportView(tk.Frame):
         axes.invert_xaxis()
 
         axes.set_title("Compound Sentiment Scores over Time")
-        axes.set_xlabel("Datetime")
-        axes.set_ylabel("Sentiment Score")
 
         compound_keys = [
             key for key in list(df.columns.values) if key.endswith("compound")
         ]
 
         df.plot(ax=axes, x="timestamp", y=compound_keys)
+        axes.set_xlabel("Datetime")
+        axes.set_ylabel("Sentiment Score")
+
+        fig.autofmt_xdate()
+
+        return fig
+
+    def make_frequency_figure(self, df, lexicon_name):
+        in_lexicon = df.loc[df["lexicon name"] == lexicon_name]
+
+        if in_lexicon.empty:
+            return None
+
+        fig = plt.figure()
+        axes = fig.add_subplot(111)
+
+        y_pos = np.arange(len(in_lexicon))
+
+        in_lexicon.plot(
+            ax=axes,
+            y="frequency per 10,000",
+            x="lemmatized word",
+            kind="barh",
+            legend=None,
+        )
+        axes.set_title(f'Frequency per 10,000 of words in lexicon "{lexicon_name}"')
+        axes.set_xlabel("Frequency per 10,000")
+        axes.set_ylabel("Lemmatized Word")
 
         fig.autofmt_xdate()
 
@@ -106,12 +130,32 @@ class ReportView(tk.Frame):
             #     frame, text=self.report.get_results(), justify=tk.LEFT
             # )
             # report_results.grid(column=0, row=4)
-            figure = self.make_figure()
+
+            df = self.report.get_results()
+            figure = self.make_timeseries_figure(df)
             self.canvas = FigureCanvasTkAgg(figure, master=frame)
             self.canvas.draw()
 
             canvas_widget = self.canvas.get_tk_widget()
             canvas_widget.grid(column=0, row=4, sticky="nesw")
+
+            current_row = 5
+
+            for lexicon_name in self.report.lexicon_names:
+                if lexicon_name == DefaultLexicon.name:
+                    continue
+
+                df = self.report.get_frequencies()
+                figure = self.make_frequency_figure(df, lexicon_name)
+
+                if figure is None:
+                    continue
+
+                canvas = FigureCanvasTkAgg(figure, master=frame)
+                self.canvas.draw()
+                canvas_widget = canvas.get_tk_widget()
+                canvas_widget.grid(column=0, row=current_row, sticky="nesw")
+                current_row += 1
 
     def run_progress_cb(self, progress):
         self.run_progress["value"] = progress
