@@ -1,8 +1,13 @@
 from tkthread import tk
 import tkinter.ttk as ttk
 import numpy as np
+from tkinter import filedialog as fd
+
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+import os
+import shutil
 
 import pognlp.view.theme as theme
 import pognlp.view.common as common
@@ -120,10 +125,19 @@ class ReportView(tk.Frame):
             self.run_report,
             "Run Report",
         )
+        export_button = common.Button(
+            frame,
+            self.export,
+            "Export",
+        )
+        #self.include_body = tk.BooleanVar()
+        #include_body_button = tk.Checkbutton(, text="Include body of comments in report", variable=self.include_body, onvalue=True, offvalue=False)
+
         if self.run_in_progress:
             self.run_progress.grid(column=0, row=3)
         else:
             run_report_button.grid(column=0, row=3)
+            #include_body_button.grid(column=1, row=3)
 
         if self.report.complete:
             # report_results = common.Label(
@@ -137,7 +151,8 @@ class ReportView(tk.Frame):
             self.canvas.draw()
 
             canvas_widget = self.canvas.get_tk_widget()
-            canvas_widget.grid(column=0, row=4, sticky="nesw")
+            canvas_widget.grid(column=0, row=5, sticky="nesw")
+            export_button.grid(column=0, row=4)
 
             current_row = 5
 
@@ -161,6 +176,7 @@ class ReportView(tk.Frame):
         self.run_progress["value"] = progress
 
     def run_report(self):
+        #print(self.include_body)
         self.run_in_progress = True
         self.update_dashboard(None)
 
@@ -174,3 +190,9 @@ class ReportView(tk.Frame):
             self.controller.tkt(self.controller.reports.update)
 
         util.run_thread(run_and_update)
+    
+    def export(self):
+        dest = fd.asksaveasfilename()
+        shutil.copyfile(self.report.output_path, dest)
+        
+
