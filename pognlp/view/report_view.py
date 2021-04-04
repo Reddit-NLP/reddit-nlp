@@ -4,6 +4,7 @@ import numpy as np
 from tkinter import filedialog as fd
 from collections import defaultdict
 
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -30,14 +31,19 @@ class ReportView(tk.Frame):
 
         self.report = None
         self.run_in_progress = False
-        self.canvas = None
 
         self.controller.current_report.subscribe(self.update_dashboard)
         self.controller.reports.subscribe(self.update_dashboard)
         self.include_body = tk.BooleanVar()
 
     def make_timeseries_figure(self, df):
-        df.sort_values("timestamp", ascending=False)
+        if df.empty:
+            return None
+
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
+
+        if len(df) > 200:
+            df = df.set_index("timestamp").resample("1H").mean().reset_index()
 
         fig = plt.figure()
         axes = fig.add_subplot(111)
@@ -89,6 +95,12 @@ class ReportView(tk.Frame):
 
         if in_lexicon.empty:
             return None
+
+        max_words_to_display = 20
+        if len(in_lexicon) > max_words_to_display:
+            in_lexicon = in_lexicon.nlargest(
+                max_words_to_display, "frequency per 10,000"
+            )
 
         fig = plt.figure()
         axes = fig.add_subplot(111)
@@ -180,15 +192,17 @@ class ReportView(tk.Frame):
             )
             self.export_button.grid(column=0, row=5)
 
+            current_row = 6
+
             df = self.report.get_results()
             figure = self.make_timeseries_figure(df)
-            self.canvas = FigureCanvasTkAgg(figure, master=frame)
-            self.canvas.draw()
+            if figure is not None:
+                canvas = FigureCanvasTkAgg(figure, master=frame)
+                canvas.draw()
 
-            canvas_widget = self.canvas.get_tk_widget()
-            canvas_widget.grid(column=0, row=6, sticky="nesw")
-
-            current_row = 7
+                canvas_widget = canvas.get_tk_widget()
+                canvas_widget.grid(column=0, row=current_row, sticky="nesw")
+                current_row += 1
 
             for lexicon_name in self.report.lexicon_names:
                 if lexicon_name == DefaultLexicon.name:
@@ -201,7 +215,7 @@ class ReportView(tk.Frame):
                     continue
 
                 canvas = FigureCanvasTkAgg(figure, master=frame)
-                self.canvas.draw()
+                canvas.draw()
                 canvas_widget = canvas.get_tk_widget()
                 canvas_widget.grid(column=0, row=current_row, sticky="nesw")
                 current_row += 1
