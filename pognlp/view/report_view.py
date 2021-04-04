@@ -2,6 +2,7 @@ from tkthread import tk
 import tkinter.ttk as ttk
 import numpy as np
 from tkinter import filedialog as fd
+from collections import defaultdict
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -53,6 +54,31 @@ class ReportView(tk.Frame):
         df.plot(ax=axes, x="timestamp", y=compound_keys)
         axes.set_xlabel("Datetime")
         axes.set_ylabel("Sentiment Score")
+
+        legend = axes.get_legend()
+        lines_by_legend_element = {}
+        legend_elements_by_lines = defaultdict(lambda: [])
+        for legend_text, legend_line, line in zip(
+            legend.get_texts(), legend.get_lines(), axes.get_lines()
+        ):
+            legend_text.set_picker(True)
+            legend_line.set_picker(True)
+            lines_by_legend_element[legend_line] = line
+            lines_by_legend_element[legend_text] = line
+            legend_elements_by_lines[line].extend((legend_line, legend_text))
+
+        # picking
+        # see https://matplotlib.org/stable/gallery/event_handling/legend_picking.html
+        def on_pick(event):
+            legend_element = event.artist
+            line = lines_by_legend_element[legend_element]
+            visible = not line.get_visible()
+            line.set_visible(visible)
+            for element in legend_elements_by_lines[line]:
+                element.set_alpha(1.0 if visible else 0.2)
+            fig.canvas.draw()
+
+        fig.canvas.mpl_connect("pick_event", on_pick)
 
         fig.autofmt_xdate()
 
@@ -132,7 +158,13 @@ class ReportView(tk.Frame):
             return
 
         run_report_button.grid(column=0, row=4)
-        include_body_button = tk.Checkbutton(frame, text="Include body of comments in report", variable=self.include_body, onvalue=True, offvalue=False)
+        include_body_button = tk.Checkbutton(
+            frame,
+            text="Include body of comments in report",
+            variable=self.include_body,
+            onvalue=True,
+            offvalue=False,
+        )
         include_body_button.grid(column=0, row=3)
 
         if self.report.complete:
@@ -185,15 +217,14 @@ class ReportView(tk.Frame):
             self.report.run(
                 progress_cb=lambda progress: self.controller.tkt(
                     self.run_progress_cb, progress
-                ), include_body=self.include_body.get()
+                ),
+                include_body=self.include_body.get(),
             )
             self.run_in_progress = False
             self.controller.tkt(self.controller.reports.update)
 
         util.run_thread(run_and_update)
-    
+
     def export(self):
         dest = fd.asksaveasfilename()
         shutil.copyfile(self.report.output_path, dest)
-        
-

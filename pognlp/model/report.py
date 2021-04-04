@@ -73,7 +73,7 @@ class Report:
 
     def run(self, progress_cb=None, include_body=False):
         self.complete = False
-        
+
         corpus = Corpus.load(self.corpus_name)
 
         n = 0
@@ -105,6 +105,9 @@ class Report:
             output_fieldnames.append(f"{lexicon_name} compound")
             if not isinstance(lexicon, DefaultLexicon):
                 for word in lexicon.words:
+                    n += 1
+                    if progress_cb is not None:
+                        progress_cb(n)
                     lemmatized = " ".join(
                         token.lemma_ for token in nlp(word.string)
                     ).lower()
@@ -136,7 +139,9 @@ class Report:
                     field: document[field] for field in corpus.document_metadata_fields
                 }
                 if include_body:
-                    sanitized_body = document["body"].replace("\n", " ").replace("\t", " ")
+                    sanitized_body = (
+                        document["body"].replace("\n", " ").replace("\t", " ")
+                    )
                     output_row_dict["body"] = sanitized_body
                 for lexicon_name in self.lexicon_names:
                     scores = analyzers[lexicon_name].polarity_scores(document["body"])
