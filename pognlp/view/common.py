@@ -18,6 +18,16 @@ class Text(tk.Text):
         )
 
 
+class Checkbutton(ttk.Checkbutton):
+    def __init__(self, master, size=12, **kw):
+        super().__init__(
+            master,
+            onvalue=True,
+            offvalue=False,
+            **kw,
+        )
+
+
 class Entry(tk.Entry):
     def __init__(self, master, size=12, **kw):
         super().__init__(

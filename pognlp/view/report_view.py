@@ -170,12 +170,10 @@ class ReportView(tk.Frame):
             return
 
         run_report_button.grid(column=0, row=4)
-        include_body_button = tk.Checkbutton(
+        include_body_button = common.Checkbutton(
             frame,
             text="Include body of comments in report",
             variable=self.include_body,
-            onvalue=True,
-            offvalue=False,
         )
         include_body_button.grid(column=0, row=3)
 
