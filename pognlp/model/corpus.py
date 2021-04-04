@@ -137,6 +137,8 @@ class RedditCorpus(Corpus):
         with open(self.comments_pickle_path, "wb") as pickle_file:
             pickle.dump(comments, pickle_file)
 
+        print("all comments downloaded.")
+
         self.compiled = True
         self.write()
 

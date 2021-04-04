@@ -42,8 +42,14 @@ class ReportView(tk.Frame):
 
         df["timestamp"] = pd.to_datetime(df["timestamp"])
 
-        if len(df) > 200:
-            df = df.set_index("timestamp").resample("1H").mean().reset_index()
+        if len(df) > 20:
+            df = (
+                df.set_index("timestamp")
+                .resample("6H")
+                .mean()
+                .interpolate("linear")
+                .reset_index()
+            )
 
         fig = plt.figure()
         axes = fig.add_subplot(111)
@@ -186,7 +192,7 @@ class ReportView(tk.Frame):
             self.export_button = common.Button(
                 frame,
                 self.export,
-                "Export",
+                "Export as TSV",
             )
             self.export_button.grid(column=0, row=5)
 
