@@ -33,6 +33,7 @@ class ReportView(tk.Frame):
 
         self.controller.current_report.subscribe(self.update_dashboard)
         self.controller.reports.subscribe(self.update_dashboard)
+        self.include_body = tk.BooleanVar()
 
     def make_timeseries_figure(self, df):
         df.sort_values("timestamp", ascending=False)
@@ -125,20 +126,14 @@ class ReportView(tk.Frame):
             self.run_report,
             "Run Report",
         )
-        export_button = common.Button(
-            frame,
-            self.export,
-            "Export",
-        )
 
         if self.run_in_progress:
             self.run_progress.grid(column=0, row=3)
-        else:
-            run_report_button.grid(column=0, row=3)
+            return
 
-            self.include_body = tk.BooleanVar()
-            include_body_button = tk.Checkbutton(frame, text="Include body of comments in report", variable=self.include_body, onvalue=True, offvalue=False)
-            include_body_button.grid(column=1, row=3)
+        run_report_button.grid(column=0, row=4)
+        include_body_button = tk.Checkbutton(frame, text="Include body of comments in report", variable=self.include_body, onvalue=True, offvalue=False)
+        include_body_button.grid(column=0, row=3)
 
         if self.report.complete:
             # report_results = common.Label(
@@ -146,16 +141,22 @@ class ReportView(tk.Frame):
             # )
             # report_results.grid(column=0, row=4)
 
+            self.export_button = common.Button(
+                frame,
+                self.export,
+                "Export",
+            )
+            self.export_button.grid(column=0, row=5)
+
             df = self.report.get_results()
             figure = self.make_timeseries_figure(df)
             self.canvas = FigureCanvasTkAgg(figure, master=frame)
             self.canvas.draw()
 
             canvas_widget = self.canvas.get_tk_widget()
-            canvas_widget.grid(column=0, row=5, sticky="nesw")
-            export_button.grid(column=0, row=4)
+            canvas_widget.grid(column=0, row=6, sticky="nesw")
 
-            current_row = 5
+            current_row = 7
 
             for lexicon_name in self.report.lexicon_names:
                 if lexicon_name == DefaultLexicon.name:

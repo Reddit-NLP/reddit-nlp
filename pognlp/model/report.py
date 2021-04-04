@@ -72,6 +72,8 @@ class Report:
         shutil.rmtree(self.directory)
 
     def run(self, progress_cb=None, include_body=False):
+        self.complete = False
+        
         corpus = Corpus.load(self.corpus_name)
 
         n = 0
