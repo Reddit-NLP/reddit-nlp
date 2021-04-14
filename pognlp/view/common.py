@@ -1,14 +1,17 @@
-from sys import platform
+"""Common Tkinter elements used in multiple places"""
+
 from functools import partial
+from sys import platform
 import tkinter as tk
-import tkinter.ttk as ttk
 import tkinter.font as f
+import tkinter.ttk as ttk
+from typing import Any, Callable, TYPE_CHECKING
 
 import pognlp.view.theme as theme
 
 
 class Text(tk.Text):
-    def __init__(self, master, size=12, **kw):
+    def __init__(self, master: tk.Frame, size: int = 12, **kw: Any):
         super().__init__(
             master,
             bg=theme.background_color,
@@ -19,7 +22,7 @@ class Text(tk.Text):
 
 
 class Checkbutton(ttk.Checkbutton):
-    def __init__(self, master, size=12, **kw):
+    def __init__(self, master: tk.Frame, **kw: Any):
         super().__init__(
             master,
             onvalue=True,
@@ -29,7 +32,7 @@ class Checkbutton(ttk.Checkbutton):
 
 
 class Entry(tk.Entry):
-    def __init__(self, master, size=12, **kw):
+    def __init__(self, master: tk.Frame, size: int = 12, **kw: Any):
         super().__init__(
             master,
             bg=theme.background_color,
@@ -40,7 +43,7 @@ class Entry(tk.Entry):
 
 
 class Label(tk.Label):
-    def __init__(self, master, size=12, **kw):
+    def __init__(self, master: tk.Frame, size: int = 12, **kw: Any):
         super().__init__(
             master,
             bg=theme.background_color,
@@ -51,7 +54,7 @@ class Label(tk.Label):
 
 
 class Listbox(tk.Listbox):
-    def __init__(self, master, size=15, **kw):
+    def __init__(self, master: tk.Frame, size: int = 15, **kw: Any):
         super().__init__(
             master,
             relief="flat",
@@ -68,14 +71,14 @@ class Listbox(tk.Listbox):
 class Button(tk.Button):
     def __init__(
         self,
-        master,
-        command=None,
-        text=None,
-        font_family="PingFang TC",
-        color=theme.main_color,
-        background_color=theme.background_color_accent,
-        active_color=theme.highlight_color,
-        **kw
+        master: tk.Frame,
+        command: Callable[[], None],
+        text: str,
+        font_family: str = "PingFang TC",
+        color: str = theme.main_color,
+        background_color: str = theme.background_color_accent,
+        active_color: str = theme.highlight_color,
+        **kw: Any,
     ):
         tk.Button.__init__(self, master=master, command=command, **kw)
 
@@ -92,15 +95,20 @@ class Button(tk.Button):
         self.bind("<Enter>", self.on_enter)
         self.bind("<Leave>", self.on_leave)
 
-    def on_enter(self, e):
+    def on_enter(self, _: Any) -> None:
+        """Set a hover color"""
         self["foreground"] = self.active_color
 
-    def on_leave(self, e):
+    def on_leave(self, _: Any) -> None:
+        """Unset hover color"""
         self["foreground"] = self.color
 
 
 class ScrollableFrame(ttk.Frame):
     """
+    Adapted from
+    https://gist.github.com/JackTheEngineer/81df334f3dcff09fd19e4169dd560c59#gistcomment-3601858
+
     A pure Tkinter scrollable frame that actually works!
     * Use the 'interior' attribute to place widgets inside the scrollable frame
     * Construct and pack/place/grid normally
@@ -108,7 +116,7 @@ class ScrollableFrame(ttk.Frame):
     * This comes from a different naming of the the scrollwheel 'button', on different systems.
     """
 
-    def __init__(self, parent, *args, **kw):
+    def __init__(self, parent: tk.Frame, *args: Any, **kw: Any):
 
         super().__init__(parent, *args, **kw)
 
@@ -143,38 +151,39 @@ class ScrollableFrame(ttk.Frame):
         # track changes to the canvas and frame width and sync them,
         # also updating the scrollbar
 
-    def _configure_interior(self, event):
+    def _configure_interior(self, _: Any) -> None:
         # update the scrollbars to match the size of the inner frame
-        size = (self.interior.winfo_reqwidth(), self.interior.winfo_reqheight())
-        self.canvas.config(scrollregion="0 0 %s %s" % size)
+        width = self.interior.winfo_reqwidth()
+        height = self.interior.winfo_reqheight()
+
+        self.canvas.config(scrollregion=(0, 0, width, height))
 
         if self.interior.winfo_reqwidth() != self.winfo_width():
             # update the canvas's width to fit the inner frame
             self.canvas.config(width=self.interior.winfo_reqwidth())
 
-    def _configure_canvas(self, event):
+    def _configure_canvas(self, _: Any) -> None:
         if self.interior.winfo_reqwidth() != self.winfo_width():
             # update the inner frame's width to fill the canvas
             self.canvas.itemconfigure(self.interior_id, width=self.winfo_width())
 
     # This can now handle either windows or linux platforms
-    def _on_mousewheel(self, event, scroll=None):
+    def _on_mousewheel(self, event: Any, scroll: float = 0) -> None:
 
-        if platform == "linux" or platform == "linux2":
+        if platform in ("linux", "linux2"):
             self.canvas.yview_scroll(int(scroll), "units")
         else:
             self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-    def _bind_to_mousewheel(self, event):
-        if platform == "linux" or platform == "linux2":
+    def _bind_to_mousewheel(self, _: Any) -> None:
+        if platform in ("linux", "linux2"):
             self.canvas.bind_all("<Button-4>", partial(self._on_mousewheel, scroll=-1))
             self.canvas.bind_all("<Button-5>", partial(self._on_mousewheel, scroll=1))
         else:
             self.bind_all("<MouseWheel>", self._on_mousewheel)
 
-    def _unbind_from_mousewheel(self, event):
-
-        if platform == "linux" or platform == "linux2":
+    def _unbind_from_mousewheel(self, _: Any) -> None:
+        if platform in ("linux", "linux2"):
             self.canvas.unbind_all("<Button-4>")
             self.canvas.unbind_all("<Button-5>")
         else:

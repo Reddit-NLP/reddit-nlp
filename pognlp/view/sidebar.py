@@ -1,11 +1,25 @@
+"""Sidebar frame for navigating among pages"""
+
 import tkinter as tk
 import tkinter.font as f
+from typing import Any, Callable, TYPE_CHECKING
 
 import pognlp.view.theme as theme
 
+if TYPE_CHECKING:
+    from pognlp.app import App
+
 
 class SideListbox(tk.Listbox):
-    def __init__(self, master, text, on_select, **kw):
+    """Single entry in the sidebar"""
+
+    def __init__(
+        self,
+        master: tk.Frame,
+        text: str,
+        on_select: Callable[[Any], None],
+        **kw: Any,
+    ):
         self.default_background = theme.accent_color
         tk.Listbox.__init__(
             self,
@@ -31,16 +45,15 @@ class SideListbox(tk.Listbox):
         self.bind("<Motion>", self.snap_highlight_to_mouse)
         self.bind("<Leave>", self.unhighlight)
 
-    # what happens on hover if the listbox is >1 item then this
-    # method will not work correctly with its partner
-    def snap_highlight_to_mouse(self, event):
+    def snap_highlight_to_mouse(self, event: Any) -> None:
+        """Called on mouse hover"""
         self.selection_clear(0, tk.END)
         self.itemconfig(
             self.nearest(event.y), bg=theme.highlight_color, fg=self.default_background
         )
 
-    # what happens on leave
-    def unhighlight(self, event):
+    def unhighlight(self, event: Any) -> None:
+        """Called on mouse leave"""
         self.selection_clear(0, tk.END)
         self.itemconfig(
             self.nearest(event.y),
@@ -50,7 +63,9 @@ class SideListbox(tk.Listbox):
 
 
 class Sidebar(tk.Frame):
-    def __init__(self, parent, controller, **kwargs):
+    """Sidebar frame for navigating among pages"""
+
+    def __init__(self, parent: tk.Frame, controller: "App", **kwargs: Any):
         tk.Frame.__init__(self, parent, **kwargs)
         self.controller = controller
 
@@ -89,22 +104,3 @@ class Sidebar(tk.Frame):
             on_select=lambda _: controller.set_current_frame("ReportListView"),
         )
         reports_item.grid(column=0, row=4)
-
-
-#         dictionary_item = SideListbox(
-#             self, bg=theme.main_color, width=13, exportselection=0
-#         )
-#         dictionary_item.grid(column=0, row=2)
-#         dictionary_item.insert(0, "  Dictionaries")
-#         dictionary_item.bind(
-#             "<<ListboxSelect>>", lambda x: controller.show_frame("DictionaryDashboard")
-#         )
-
-#         reports_item = SideListbox(
-#             self, bg=theme.main_color, width=13, exportselection=0
-#         )
-#         reports_item.grid(column=0, row=3)
-#         reports_item.insert(0, "  Reports")
-#         reports_item.bind(
-#             "<<ListboxSelect>>", lambda x: controller.show_frame("ReportDashboard")
-#         )

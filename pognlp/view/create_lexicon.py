@@ -1,15 +1,22 @@
+"""Create lexicon form"""
+
 import tkinter as tk
 import tkinter.messagebox as messagebox
-from tkinter import font
+from typing import Any, Optional, TYPE_CHECKING
 
 import pognlp.view.theme as theme
 import pognlp.view.common as common
-from pognlp.model.corpus import Corpus, RedditCorpus
-from pognlp.model.lexicon import DefaultLexicon, Lexicon
+from pognlp.model.lexicon import DefaultLexicon
+
+
+if TYPE_CHECKING:
+    from pognlp.app import App
 
 
 class CreateLexiconView(tk.Frame):
-    def __init__(self, parent, controller, **kwargs):
+    """Form for creating a new Lexicon"""
+
+    def __init__(self, parent: tk.Frame, controller: "App", **kwargs: Any):
         tk.Frame.__init__(self, parent, **kwargs)
         self.controller = controller
         self.configure(bg=theme.background_color_accent)
@@ -47,7 +54,8 @@ class CreateLexiconView(tk.Frame):
 
         self.confirm_button.configure(padx=10, pady=5)
 
-    def create_lexicon(self):
+    def create_lexicon(self) -> None:
+        """Validate entered data and create the lexicon"""
         name = self.name_entry.get()
         if not name:
             messagebox.showerror("Error", "Please enter a name.")
@@ -65,12 +73,12 @@ class CreateLexiconView(tk.Frame):
                 if word != "":
                     word_split = word.split(";")
                     word_list.append((word_split[0], float(word_split[1])))
-        except IndexError as e:
+        except IndexError:
             tk.messagebox.showerror(
                 "Error", "Each line must be a semicolon-separated word-number pair."
             )
             return
-        except ValueError as e:
+        except ValueError:
             tk.messagebox.showerror(
                 "Error", "Each line must be a semicolon-separated word-number pair."
             )
@@ -81,22 +89,28 @@ class CreateLexiconView(tk.Frame):
         self.controller.set_current_lexicon(None)
         self.controller.set_current_frame("LexiconListView")
 
-    def update_info(self, data):
+    def update_info(self, current_lexicon: Optional[str]) -> None:
+        """Reset the view when the current lexicon changes"""
         self.confirm_button.config(state="normal")
         self.name_entry.config(state="normal")
         self.words_text.config(state="normal")
         self.name_entry.delete(0, tk.END)
         self.words_text.delete("1.0", "end")
-        if self.controller.current_lexicon.get() is None:
+        if current_lexicon is None:
             return
-        lexicon = self.controller.lexica.get()[self.controller.current_lexicon.get()]
+        lexicon = self.controller.lexica.get()[current_lexicon]
 
         self.name_entry.insert(0, lexicon.name)
 
         if isinstance(lexicon, DefaultLexicon):
             self.words_text.insert(
                 "1.0",
-                "The default VADER lexicon can't be modified since it's distributed with VADER. You can view it here: https://github.com/cjhutto/vaderSentiment/blob/master/vaderSentiment/vader_lexicon.txt",
+                (
+                    "The default VADER lexicon can't be modified since it's "
+                    "distributed with VADER. You can view it here: "
+                    "https://github.com/cjhutto/vaderSentiment/blob/master/"
+                    "vaderSentiment/vader_lexicon.txt"
+                ),
             )
             self.name_entry.config(state="disabled")
             self.words_text.config(state="disabled")

@@ -1,19 +1,29 @@
-from tkthread import tk
-import tkinter.font as f
+"""View for the list of stored corpora"""
 
+from typing import Dict, List, Optional, TYPE_CHECKING
+
+from tkthread import tk
+
+from pognlp.model.corpus import Corpus
 import pognlp.util as util
 import pognlp.view.common as common
 import pognlp.view.theme as theme
 
 
+if TYPE_CHECKING:
+    from pognlp.app import App
+
+
 class CorpusListView(tk.Frame):
-    def __init__(self, parent, controller):
+    """View for the list of stored corpora"""
+
+    def __init__(self, parent: tk.Frame, controller: "App"):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.configure(bg=theme.background_color)
 
-        self.selected_corpus = util.Observable(None)
-        self.corpus_names = []
+        self.selected_corpus = util.Observable[Optional[str]](None)
+        self.corpus_names: List[str] = []
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
@@ -40,7 +50,7 @@ class CorpusListView(tk.Frame):
 
         self.delete_button = common.Button(
             master=top_frame,
-            command=lambda: self.controller.delete_corpus(self.selected_corpus.get()),
+            command=self.delete_corpus,
             text="Delete Selected",
         )
         self.delete_button.grid(column=1, row=0)
@@ -54,10 +64,15 @@ class CorpusListView(tk.Frame):
         self.controller.corpora.subscribe(self.update_listbox)
         self.selected_corpus.subscribe(self.update_common)
 
-    def create_corpus(self):
+    def create_corpus(self) -> None:
+        """Go to Create Corpus view"""
         self.controller.set_current_frame("CreateCorpusView")
 
-    def update_listbox(self, corpora):
+    def update_listbox(self, corpora: Dict[str, Corpus]) -> None:
+        """Update the listbox when the corpora change"""
+
+        # Don't update if the set of names hasn't changed
+
         new_corpus_names = frozenset(corpora.keys())
         if frozenset(self.corpus_names) == new_corpus_names:
             return
@@ -71,12 +86,21 @@ class CorpusListView(tk.Frame):
         for corpus_name in self.corpus_names:
             self.listbox.insert(tk.END, corpus_name)
 
-    def update_common(self, selected_corpus):
+    def update_common(self, selected_corpus: Optional[str]) -> None:
+        """Disable buttons if selected_corpus is None, else enable"""
         state = tk.DISABLED if selected_corpus is None else tk.NORMAL
         self.delete_button["state"] = state
 
-    def on_select(self, event):
+    def on_select(self, event: tk.Event) -> None:
+        """Set selected_corpus when the listbox selection changes"""
         selection = event.widget.curselection()
         if selection:
             [corpus_index] = selection
             self.selected_corpus.set(self.corpus_names[corpus_index])
+
+    def delete_corpus(self) -> None:
+        """Delete the selected corpus"""
+        corpus = self.selected_corpus.get()
+        if corpus is None:
+            return
+        self.controller.delete_corpus(corpus)

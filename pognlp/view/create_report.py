@@ -1,14 +1,22 @@
+"""Create report form"""
+
 import tkinter as tk
 import tkinter.messagebox as messagebox
-from tkinter import font
+from typing import Any, Dict, List, TYPE_CHECKING, Union
+
 import pognlp.view.theme as theme
 import pognlp.view.common as common
-from pognlp.model.corpus import Corpus, RedditCorpus
-from pognlp.model.lexicon import Lexicon
+from pognlp.model.corpus import Corpus
+from pognlp.model.lexicon import DefaultLexicon, Lexicon
+
+if TYPE_CHECKING:
+    from pognlp.app import App
 
 
 class CreateReportView(tk.Frame):
-    def __init__(self, parent, controller, **kwargs):
+    """Page for creating a new report"""
+
+    def __init__(self, parent: tk.Frame, controller: "App", **kwargs: Any):
         tk.Frame.__init__(self, parent, **kwargs)
         self.controller = controller
         self.configure(bg=theme.background_color)
@@ -32,8 +40,8 @@ class CreateReportView(tk.Frame):
         )
         self.lexicon_listbox.grid(column=1, row=1, sticky="nsew")
 
-        self.corpus_names = []
-        self.lexicon_names = []
+        self.corpus_names: List[str] = []
+        self.lexicon_names: List[str] = []
 
         self.controller.corpora.subscribe(self.update_corpora)
         self.controller.lexica.subscribe(self.update_lexica)
@@ -60,7 +68,8 @@ class CreateReportView(tk.Frame):
 
         report_params_button.configure(padx=10, pady=5)
 
-    def update_corpora(self, corpora):
+    def update_corpora(self, corpora: Dict[str, Corpus]) -> None:
+        """Update the list of corpora when one is added or removed"""
         self.corpus_names = list(corpora.keys())
         self.corpus_listbox.delete(0, tk.END)
 
@@ -68,7 +77,8 @@ class CreateReportView(tk.Frame):
         for corpus_name in self.corpus_names:
             self.corpus_listbox.insert(tk.END, corpus_name)
 
-    def update_lexica(self, lexica):
+    def update_lexica(self, lexica: Dict[str, Union[DefaultLexicon, Lexicon]]) -> None:
+        """Update the list of lexica when one is added or removed"""
         self.lexicon_names = list(lexica.keys())
 
         self.lexicon_listbox.delete(0, tk.END)
@@ -77,7 +87,8 @@ class CreateReportView(tk.Frame):
         for lexicon_name in self.lexicon_names:
             self.lexicon_listbox.insert(tk.END, lexicon_name)
 
-    def create_report(self):
+    def create_report(self) -> None:
+        """Validate entered data and create a new report"""
         report_name = self.report_name_entry.get()
         if not report_name:
             messagebox.showerror("Error", "Please enter a name.")
@@ -98,8 +109,8 @@ class CreateReportView(tk.Frame):
 
         try:
             self.controller.create_report(report_name, corpus_name, lexicon_names)
-        except ValueError as e:
-            tk.messagebox.showerror("Error", e)
+        except ValueError as error:
+            tk.messagebox.showerror("Error", str(error))
             return
 
         self.report_name_entry.delete(0, tk.END)

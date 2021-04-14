@@ -1,51 +1,54 @@
+"""Report class"""
+
 from __future__ import annotations
 
 import shutil
 import os
 import glob
-from typing import List, Generator
-import time
+from typing import Callable, Dict, Iterable, List, Optional
 import csv
 from collections import defaultdict, Counter
-import itertools
 
 import spacy
 import pandas as pd
-import numpy as np
 import rtoml as toml
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from pognlp.analyze import get_analyzer
 import pognlp.constants as constants
 from pognlp.model.corpus import Corpus
 from pognlp.model.lexicon import DefaultLexicon, Lexicon
 
-toml_name = "report.toml"
-output_name = "output.tsv"
-frequency_name = "frequency.tsv"
+TOML_NAME = "report.toml"
+OUTPUT_NAME = "output.tsv"
+FREQUENCY_NAME = "frequency.tsv"
 
-delimiter = "\t"
+DELIMITER = "\t"
 
 
 class Report:
+    """A pairing of a corpus and a set of lexica used to analyze that corpus"""
+
     def __init__(
         self,
         name: str,
         corpus_name: str,
         lexicon_names: List[str],
-        complete=False,
+        complete: bool = False,
     ):
         self.name = name
         self.corpus_name = corpus_name
         self.lexicon_names = lexicon_names
         self.complete = complete
         self.directory = os.path.join(constants.reports_path, name)
-        self.toml_path = os.path.join(self.directory, toml_name)
-        self.output_path = os.path.join(self.directory, output_name)
-        self.frequency_path = os.path.join(self.directory, frequency_name)
+        self.toml_path = os.path.join(self.directory, TOML_NAME)
+        self.output_path = os.path.join(self.directory, OUTPUT_NAME)
+        self.frequency_path = os.path.join(self.directory, FREQUENCY_NAME)
         self.write()
 
     @staticmethod
-    def ls() -> Generator[str, None, None]:
+    def ls() -> Iterable[str]:
+        """List the names of all reports saved to disk"""
         return (
             os.path.basename(path)
             for path in glob.iglob(os.path.join(constants.reports_path, "*"))
@@ -53,11 +56,13 @@ class Report:
 
     @staticmethod
     def load(name: str) -> Report:
-        toml_path = os.path.join(constants.reports_path, name, toml_name)
+        """Load a report from disk given its name"""
+        toml_path = os.path.join(constants.reports_path, name, TOML_NAME)
         with open(toml_path) as toml_file:
             return Report(name=name, **toml.load(toml_file))
 
-    def write(self):
+    def write(self) -> None:
+        """Serialize and write the report to disk"""
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
         report_dict = {
@@ -68,31 +73,61 @@ class Report:
         with open(self.toml_path, "w") as toml_file:
             toml.dump(report_dict, toml_file)
 
-    def delete(self):
+    def delete(self) -> None:
+        """Delete a report"""
         shutil.rmtree(self.directory)
 
-    def run(self, progress_cb=None, include_body=False):
+    def run(
+        self,
+        progress_cb: Optional[Callable[[int], None]] = None,
+        include_body: bool = False,
+    ) -> None:
+        """Run the report
+
+        Where the magic happens. For each lexicon, get sentiment scores for
+        each document in the corpus and count the frequency of each word in the
+        lexicon. Store results in TSV files on disk in the report's directory.
+        Optionally call `progress_cb` when any progress is made with an
+        incrementing value (unfortunately, a true "determinate" progress value
+        from 0 to 1 is not available). Optionally include the body of each
+        document in the report's output."""
+
+        # Reset `complete` status in case we're re-running the report
         self.complete = False
 
         corpus = Corpus.load(self.corpus_name)
 
-        n = 0
+        progress = 0
 
         output_fieldnames = [*corpus.document_metadata_fields]
-        analyzers = {}
+        analyzers: Dict[str, SentimentIntensityAnalyzer] = {}
         if include_body:
             output_fieldnames.insert(0, "body")
 
-        frequencies = Counter()
+        frequencies = Counter[str]()
         frequency_fieldnames = [
             "lemmatized word",
             "lexicon name",
             "frequency per 10,000",
         ]
-        lexicon_lemmas = defaultdict(lambda: [])
+
+        # To get a meaningful frequency count, lemmatize the words before
+        # counting them. Lemmatization reduces a word to its base form. See
+        # https://en.wikipedia.org/wiki/Lemmatisation.
+
+        # Keep track of the set of lexica that each lemma belongs to Lambda is
+        # necessary here since defaultdict expects a factory function, and
+        # anyways we need a separate instance of set for each key
+        # pylint: disable=unnecessary-lambda
+        lexicon_lemmas = defaultdict(lambda: set())
+
+        # the set of all lemmas
         all_lexicon_lemmas = set()
+
+        # the total word count in the corpus for relative frequency counts
         total_token_count = 0
 
+        # Use Spacy for lemmatization
         nlp = spacy.load("en_core_web_sm", disable=["parser", "ner"])
 
         for lexicon_name in self.lexicon_names:
@@ -105,25 +140,26 @@ class Report:
             output_fieldnames.append(f"{lexicon_name} compound")
             if not isinstance(lexicon, DefaultLexicon):
                 for word in lexicon.words:
-                    n += 1
+                    progress += 1
                     if progress_cb is not None:
-                        progress_cb(n)
+                        progress_cb(progress)
                     lemmatized = " ".join(
                         token.lemma_ for token in nlp(word.string)
                     ).lower()
-                    lexicon_lemmas[lexicon_name].append(lemmatized)
+                    lexicon_lemmas[lexicon_name].add(lemmatized)
                     all_lexicon_lemmas.add(lemmatized)
 
+        # Open both output TSV files for writing
         with open(self.output_path, "w") as output_file, open(
             self.frequency_path, "w"
         ) as frequency_file:
             output_writer = csv.DictWriter(
-                output_file, fieldnames=output_fieldnames, delimiter=delimiter
+                output_file, fieldnames=output_fieldnames, delimiter=DELIMITER
             )
             output_writer.writeheader()
 
             frequency_writer = csv.DictWriter(
-                frequency_file, fieldnames=frequency_fieldnames, delimiter=delimiter
+                frequency_file, fieldnames=frequency_fieldnames, delimiter=DELIMITER
             )
             frequency_writer.writeheader()
 
@@ -152,9 +188,9 @@ class Report:
 
                 output_writer.writerow(output_row_dict)
 
-                n += 1
+                progress += 1
                 if progress_cb is not None:
-                    progress_cb(n)
+                    progress_cb(progress)
 
             for lexicon_name in self.lexicon_names:
                 for lemma in lexicon_lemmas[lexicon_name]:
@@ -176,12 +212,14 @@ class Report:
         self.write()
 
     def get_results(self) -> pd.DataFrame:
+        """Return a dataframe of the report results"""
         if not self.complete:
             return None
 
-        return pd.read_csv(self.output_path, sep=delimiter, parse_dates=True)
+        return pd.read_csv(self.output_path, sep=DELIMITER, parse_dates=True)
 
     def get_frequencies(self) -> pd.DataFrame:
+        """Return a dataframe of the word frequencies"""
         if not self.complete:
             return None
-        return pd.read_csv(self.frequency_path, sep=delimiter)
+        return pd.read_csv(self.frequency_path, sep=DELIMITER)

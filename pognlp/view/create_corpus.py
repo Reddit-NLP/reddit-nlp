@@ -1,18 +1,24 @@
+"""Create corpus form. Currently only supports Reddit corpora."""
+
 import tkinter as tk
 import tkinter.ttk as ttk
-import tkinter.messagebox as messagebox
+from typing import Any, TYPE_CHECKING
+
 import dateparser
-from tkinter import font
 
 import pognlp.view.theme as theme
 import pognlp.view.common as common
 import pognlp.util as util
-from pognlp.model.corpus import Corpus, RedditCorpus
-from pognlp.model.lexicon import Lexicon
+from pognlp.model.corpus import RedditCorpus
+
+if TYPE_CHECKING:
+    from pognlp.app import App
 
 
 class CreateCorpusView(tk.Frame):
-    def __init__(self, parent, controller, **kwargs):
+    """Form for creating a new Reddit corpus"""
+
+    def __init__(self, parent: tk.Frame, controller: "App", **kwargs: Any):
         tk.Frame.__init__(self, parent, **kwargs)
         self.controller = controller
         self.configure(bg=theme.background_color)
@@ -39,11 +45,13 @@ class CreateCorpusView(tk.Frame):
         self.name_label = common.Label(self, text="Corpus Name")
         self.name_label.grid(column=0, row=6, sticky="new")
 
+        # load last-used credentials from settings
         initial_client_id = self.controller.settings.get().get("REDDIT_CLIENT_ID") or ""
         initial_client_secret = (
             self.controller.settings.get().get("REDDIT_CLIENT_SECRET") or ""
         )
 
+        # entries
         self.start_entry = common.Entry(self)
         self.start_entry.grid(column=1, row=1, sticky="new")
         self.end_entry = common.Entry(self)
@@ -82,17 +90,19 @@ class CreateCorpusView(tk.Frame):
             bottom_frame, orient=tk.HORIZONTAL, length=100, mode="indeterminate"
         )
 
-    def download_progress_cb(self, progress):
+    def download_progress_cb(self, progress: int) -> None:
+        """Called when progress is made on the download"""
         self.download_button.grid_forget()
 
         self.download_progress.grid(column=1, row=4)
         self.download_progress["value"] = progress
 
-    def download(self):
+    def download(self) -> None:
+        """Validate entered data and start the download"""
         start = dateparser.parse(self.start_entry.get())
         end = dateparser.parse(self.end_entry.get())
         name = self.name_entry.get()
-        if not start or not end:
+        if None in (start, end):
             tk.messagebox.showerror(
                 "Error", "Please check that date/time format is recognizably valid."
             )
@@ -129,7 +139,9 @@ class CreateCorpusView(tk.Frame):
 
         self.download_in_progress = True
 
-        def download_and_update():
+        def download_and_update() -> None:
+            assert start is not None
+            assert end is not None
             corpus = RedditCorpus(
                 name,
                 subreddits=subs,

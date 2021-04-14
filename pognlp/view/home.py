@@ -1,11 +1,19 @@
+"""Home page"""
+
 import tkinter as tk
+from typing import Any, TYPE_CHECKING
 
 import pognlp.view.common as common
 import pognlp.view.theme as theme
 
+if TYPE_CHECKING:
+    from pognlp.app import App
+
 
 class HomeView(tk.Frame):
-    def __init__(self, parent, controller, **kwargs):
+    """Welcome screen with shortcuts to common tasks"""
+
+    def __init__(self, parent: tk.Frame, controller: "App", **kwargs: Any):
         tk.Frame.__init__(self, parent, **kwargs)
         self.controller = controller
         self.configure(bg=theme.background_color)
