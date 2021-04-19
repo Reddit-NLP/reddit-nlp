@@ -2,11 +2,11 @@
 name = "pognlp"
 version = "0.1.0"
 description = ""
-authors = ["Evan Goode <egoode6@gatech.edu>", "Celine MacKe <cmacke@gatech.edu>"]
+authors = ["Evan Goode <egoode6@gatech.edu>", "Celine MacKe <cmacke@gatech.edu>", "Ryan Fitzpatrick <ryanfitzpatrick@gatech.edu>", "Nealie Glasser <nglasser3@gatech.edu>", "Horace Yao <horace.yao@gatech.edu>"]
 license = "The Unlicense"
 
 [tool.poetry.scripts]
-pognlp = "pognlp.app:main"
+pognlp = "pognlp.pognlp:main"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -28,6 +28,7 @@ matplotlib = "^3.4.1"
 spacy = "^3.0.5"
 en-core-web-sm = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.0.0/en_core_web_sm-3.0.0-py3-none-any.whl"}
 mypy = "^0.812"
+pyinstaller = "^4.3"
 
 [tool.poetry.dev-dependencies]
 
