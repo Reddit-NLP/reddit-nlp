@@ -1,5 +1,22 @@
 # reddit-nlp
 
+# Release Notes
+
+## PogNLP v1.0
+New Features
+- Allows data to be downloaded from Reddit
+- Allows creation of custom dictionaries (lexica) to be created for the nlp algorithm
+- Can run the nlp algorithm on downloaded data using created lexica
+
+Bug Fixes
+- Added error messages when the download is unsuccessful
+- Added message to display when download is complete
+- Fixed issues where you could not create multiple corpora without restarting the app
+
+Known Bugs
+
+# Install Information
+
 ## Running PogNLP
 
 Portable executables for GNU/Linux, macOS, and Windows are available for download in the [Releases section](https://github.com/Reddit-NLP/reddit-nlp/releases).
