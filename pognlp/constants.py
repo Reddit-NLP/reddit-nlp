@@ -4,8 +4,8 @@ import os
 
 from appdirs import user_data_dir
 
-app_name = "Reddit-NLP"
-app_author = "Reddit-NLP"
+app_name = "PogNLP"
+app_author = "PogNLP"
 
 # TODO make user agent customizable in settings
 reddit_user_agent = "linux:org.reddit-nlp.reddit-nlp:v0.1.0 (by /u/YeetoCalrissian)"

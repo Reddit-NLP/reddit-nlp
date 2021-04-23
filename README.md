@@ -1,8 +1,8 @@
-# reddit-nlp
+# PogNLP
 
-# Release Notes
+## Release Notes
 
-## PogNLP v1.0
+### PogNLP v1.0
 New Features
 - Allows data to be downloaded from Reddit
 - Allows creation of custom dictionaries (lexica) to be created for the nlp algorithm
@@ -15,9 +15,9 @@ Bug Fixes
 
 Known Bugs
 
-# Install Information
+## Install Information
 
-## Running PogNLP
+### Running PogNLP
 
 Portable executables for GNU/Linux, macOS, and Windows are available for download in the [Releases section](https://github.com/Reddit-NLP/reddit-nlp/releases).
 
@@ -40,7 +40,7 @@ And run the application:
 poetry run pognlp
 ```
 
-## Windows users: Read this before running from source or attempting to package for distribution!
+### Windows users: Read this before running from source or attempting to package for distribution!
 
 For reasons unknown to us, the Windows distribution of Python omits some important files that are required to run or package PogNLP. This GitHub issue has some discussion of the problem: https://github.com/serwy/tkthread/issues/2. The quick fix is as follows:
 
