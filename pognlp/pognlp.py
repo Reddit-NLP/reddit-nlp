@@ -1,6 +1,7 @@
 """Main entry point, GUI setup, and root-level controller"""
 
 from typing import Any, Dict, List, Optional, Tuple, Union
+import traceback
 
 import rtoml as toml
 from tkthread import tk, TkThread
@@ -29,7 +30,7 @@ class AppView(tk.Frame):
         parent: tk.Frame,
         controller: tk.Tk,
         current_frame: util.Observable[str],
-        **kwargs: Any
+        **kwargs: Any,
     ):
         tk.Frame.__init__(self, parent, **kwargs)
         self.controller = controller
@@ -115,6 +116,8 @@ class App(tk.Tk):
         view = AppView(self, self, current_frame=self.current_frame)
         view.grid(row=0, column=0, sticky="nesw")
 
+        tk.Tk.report_callback_exception = self.show_error
+
     def set_reddit_credentials(self, client_id: str, client_secret: str) -> None:
         """Sets the last-used Reddit credentials"""
         self.settings.set(
@@ -174,9 +177,23 @@ class App(tk.Tk):
         }
         self.corpora.set(corpora)
 
+    def on_corpus_complete(self) -> None:
+        """Switch back to corpus list after download finishes"""
+        if self.current_frame.get() == "CreateCorpusView":
+            self.current_frame.set("CorpusListView")
+
     def delete_corpus(self, corpus_to_delete: str) -> None:
         """Delete a corpus"""
         corpora = self.corpora.get()
+
+        if corpus_to_delete not in corpora:
+            raise ValueError(f'Corpus "{corpus_to_delete}" doesn\'t exist!')
+
+        corpus = corpora[corpus_to_delete]
+
+        if not corpus.compiled:
+            raise ValueError("That corpus is currently being compiled!")
+
         self.corpora.set(
             {
                 name: corpus
@@ -191,6 +208,14 @@ class App(tk.Tk):
         reports = self.reports.get()
         if self.current_report.get() == report_to_delete:
             self.set_current_report(None)
+
+        if report_to_delete not in reports:
+            raise ValueError('Report "{report_to_delete}" doesn\'t exist!')
+
+        report = reports[report_to_delete]
+        if report.run_in_progress:
+            raise ValueError("That report is currently running!")
+
         self.reports.set(
             {
                 name: report
@@ -216,6 +241,10 @@ class App(tk.Tk):
             }
         )
         lexicon.delete()
+
+    def show_error(self, *args: List[Any]) -> None:
+        error = traceback.format_exception(*args)
+        tk.messagebox.showerror("Error", error)
 
 
 def main() -> None:

@@ -40,6 +40,7 @@ class Report:
         self.corpus_name = corpus_name
         self.lexicon_names = lexicon_names
         self.complete = complete
+        self.run_in_progress = False
         self.directory = os.path.join(constants.reports_path, name)
         self.toml_path = os.path.join(self.directory, TOML_NAME)
         self.output_path = os.path.join(self.directory, OUTPUT_NAME)
@@ -92,6 +93,8 @@ class Report:
         from 0 to 1 is not available). Optionally include the body of each
         document in the report's output."""
 
+        self.run_in_progress = False
+
         # Reset `complete` status in case we're re-running the report
         self.complete = False
 
@@ -115,7 +118,7 @@ class Report:
         # counting them. Lemmatization reduces a word to its base form. See
         # https://en.wikipedia.org/wiki/Lemmatisation.
 
-        # Keep track of the set of lexica that each lemma belongs to Lambda is
+        # Keep track of the set of lexica that each lemma belongs to. Lambda is
         # necessary here since defaultdict expects a factory function, and
         # anyways we need a separate instance of set for each key
         # pylint: disable=unnecessary-lambda
@@ -163,7 +166,7 @@ class Report:
             )
             frequency_writer.writeheader()
 
-            for document in corpus.iterate_documents():
+            for index, document in enumerate(corpus.iterate_documents()):
                 doc = nlp(document["body"])
                 for token in doc:
                     total_token_count += 1
@@ -188,9 +191,8 @@ class Report:
 
                 output_writer.writerow(output_row_dict)
 
-                progress += 1
                 if progress_cb is not None:
-                    progress_cb(progress)
+                    progress_cb(100 * (index // corpus.document_count))
 
             for lexicon_name in self.lexicon_names:
                 for lemma in lexicon_lemmas[lexicon_name]:

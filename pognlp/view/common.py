@@ -60,7 +60,7 @@ class Listbox(tk.Listbox):
             relief="flat",
             borderwidth=0,
             fg="#000000",
-            bg=theme.background_color_accent,
+            bg=theme.background_color,
             bd=0,
             width=100,
             font=f.Font(family=theme.font_family, size=15),

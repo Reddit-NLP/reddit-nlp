@@ -24,6 +24,7 @@ class Corpus(ABC):
     def __init__(self, name: str, compiled: bool = False):
         self.name = name
         self.directory = os.path.join(constants.corpora_path, name)
+        self.document_count = 0
         self.toml_path = os.path.join(self.directory, "corpus.toml")
         self.compiled = compiled  # "Compiled" corpora are ready to be analyzed
 
@@ -155,7 +156,6 @@ class RedditCorpus(Corpus):
 
         progress = 0
         for subreddit in self.subreddits:
-            print(subreddit, start_epoch, end_epoch)
             for comment in api.search_comments(
                 after=start_epoch, before=end_epoch, subreddit=subreddit
             ):
@@ -164,10 +164,13 @@ class RedditCorpus(Corpus):
                 if progress_cb is not None:
                     progress_cb(progress)
 
+        if not comments:
+            raise ValueError("No comments found.")
+
+        self.document_count = len(comments)
+
         with open(self.comments_pickle_path, "wb") as pickle_file:
             pickle.dump(comments, pickle_file)
-
-        print("all comments downloaded.")
 
         self.compiled = True
         self.write()
