@@ -192,7 +192,7 @@ class Report:
                 output_writer.writerow(output_row_dict)
 
                 if progress_cb is not None:
-                    progress_cb(100 * (index // corpus.document_count))
+                    progress_cb(100 * (index // (corpus.document_count or 1)))
 
             for lexicon_name in self.lexicon_names:
                 for lemma in lexicon_lemmas[lexicon_name]:

@@ -191,9 +191,6 @@ class App(tk.Tk):
 
         corpus = corpora[corpus_to_delete]
 
-        if not corpus.compiled:
-            raise ValueError("That corpus is currently being compiled!")
-
         self.corpora.set(
             {
                 name: corpus

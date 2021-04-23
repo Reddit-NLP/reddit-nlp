@@ -91,7 +91,13 @@ class RedditCorpus(Corpus):
 
     corpus_type = "reddit"
 
-    document_metadata_fields = ["timestamp", "score"]
+    document_metadata_fields = [
+        "timestamp",
+        "score",
+        "comment ID",
+        "submission ID",
+        "subreddit",
+    ]
 
     def __init__(
         self,
@@ -127,6 +133,7 @@ class RedditCorpus(Corpus):
             "subreddits": self.subreddits,
             "start_time": self.start_time.isoformat(),
             "end_time": self.end_time.isoformat(),
+            "document_count": self.document_count,
             "compiled": self.compiled,
         }
         with open(self.toml_path, "w") as toml_file:
@@ -180,8 +187,11 @@ class RedditCorpus(Corpus):
             for comment in pickle.load(pickle_file):
                 yield {
                     "body": comment.body,
-                    "score": comment.score,
                     "timestamp": datetime.datetime.utcfromtimestamp(
                         comment.created_utc
                     ),
+                    "score": comment.score,
+                    "comment ID": comment.id,
+                    "submission ID": comment.submission.id,
+                    "subreddit": comment.subreddit.name,
                 }
