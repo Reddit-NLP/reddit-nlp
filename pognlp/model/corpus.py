@@ -7,9 +7,9 @@ from typing import Any, Callable, Dict, Iterable, List, Generator, Optional
 import datetime
 import glob
 import os
-import pickle
 import shutil
 
+import compress_pickle
 import rtoml as toml
 import praw
 from psaw import PushshiftAPI
@@ -112,7 +112,7 @@ class RedditCorpus(Corpus):
         self.subreddits = subreddits
         self.start_time = start_time
         self.end_time = end_time
-        self.comments_pickle_path = os.path.join(self.directory, "comments.pickle")
+        self.comments_pickle_path = os.path.join(self.directory, "comments.pickle.gz")
 
         self.write()
 
@@ -179,14 +179,14 @@ class RedditCorpus(Corpus):
         self.document_count = len(comments)
 
         with open(self.comments_pickle_path, "wb") as pickle_file:
-            pickle.dump(comments, pickle_file)
+            compress_pickle.dump(comments, pickle_file, compression="gzip")
 
         self.compiled = True
         self.write()
 
     def iterate_documents(self) -> Generator[Dict[str, Any], None, None]:
         with open(self.comments_pickle_path, "rb") as pickle_file:
-            for comment in pickle.load(pickle_file):
+            for comment in compress_pickle.load(pickle_file, compression="gzip"):
                 yield {
                     "body": comment.body,
                     "timestamp": datetime.datetime.utcfromtimestamp(

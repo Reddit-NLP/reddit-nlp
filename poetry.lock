@@ -88,6 +88,20 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
+name = "compress-pickle"
+version = "2.0.1"
+description = "Standard pickle, wrapped with standard compression libraries"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.extras]
+cloudpickle = ["cloudpickle"]
+dill = ["dill"]
+full = ["lz4", "dill", "cloudpickle"]
+lz4 = ["lz4"]
+
+[[package]]
 name = "cycler"
 version = "0.10.0"
 description = "Composable style cycles"
@@ -839,7 +853,7 @@ six = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "f99b99222ecbd203de796e4c0960fa1b40a16b42f32c22023f2a572ee424b4e7"
+content-hash = "bf6d6f5e6d1ba47ca54658abfbaadf3ba692d08fb83ac331361bf6ff23246530"
 
 [metadata.files]
 altgraph = [
@@ -887,6 +901,10 @@ chardet = [
 click = [
     {file = "click-7.1.2-py2.py3-none-any.whl", hash = "sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc"},
     {file = "click-7.1.2.tar.gz", hash = "sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"},
+]
+compress-pickle = [
+    {file = "compress_pickle-2.0.1-py3-none-any.whl", hash = "sha256:e7b8c46afe04911d0474973e5f7321daf93eb20cac276976e54935079908e3d6"},
+    {file = "compress_pickle-2.0.1.tar.gz", hash = "sha256:0fef15391e8dfdb0ea519a052dc6dd75e09766086b619474b99fd86b8016197c"},
 ]
 cycler = [
     {file = "cycler-0.10.0-py2.py3-none-any.whl", hash = "sha256:1d8a5ae1ff6c5cf9b93e8811e581232ad8920aeec647c37316ceac982b08cb2d"},

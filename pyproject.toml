@@ -29,6 +29,7 @@ spacy = "^3.0.5"
 en-core-web-sm = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.0.0/en_core_web_sm-3.0.0-py3-none-any.whl"}
 mypy = "^0.812"
 pyinstaller = "^4.3"
+compress-pickle = "^2.0.1"
 
 [tool.poetry.dev-dependencies]
 
