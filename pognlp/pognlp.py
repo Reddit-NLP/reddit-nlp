@@ -1,7 +1,6 @@
 """Main entry point, GUI setup, and root-level controller"""
 
 from typing import Any, Dict, List, Optional, Tuple, Union
-import traceback
 
 import rtoml as toml
 from tkthread import tk, TkThread
@@ -189,8 +188,6 @@ class App(tk.Tk):
         if corpus_to_delete not in corpora:
             raise ValueError(f'Corpus "{corpus_to_delete}" doesn\'t exist!')
 
-        corpus = corpora[corpus_to_delete]
-
         self.corpora.set(
             {
                 name: corpus
@@ -210,7 +207,7 @@ class App(tk.Tk):
             raise ValueError('Report "{report_to_delete}" doesn\'t exist!')
 
         report = reports[report_to_delete]
-        if report.run_in_progress:
+        if report.in_progress.get():
             raise ValueError("That report is currently running!")
 
         self.reports.set(
@@ -239,9 +236,10 @@ class App(tk.Tk):
         )
         lexicon.delete()
 
-    def show_error(self, *args: List[Any]) -> None:
-        error = traceback.format_exception(*args)
-        tk.messagebox.showerror("Error", error)
+    @staticmethod
+    def show_error(error: Exception) -> None:
+        """Show an error dialog"""
+        tk.messagebox.showerror("Error", str(error))
 
 
 def main() -> None:

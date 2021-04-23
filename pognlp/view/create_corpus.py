@@ -114,7 +114,6 @@ class CreateCorpusView(tk.Frame):
         if download_in_progress:
             self.download_button.grid_forget()
             if self.progress_bar["mode"] == "indeterminate":
-                print("starting pb")
                 self.progress_bar.start()
             self.progress_bar.grid(column=1, row=4)
         else:

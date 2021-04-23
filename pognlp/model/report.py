@@ -14,6 +14,7 @@ import pandas as pd
 import rtoml as toml
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
+import pognlp.util as util
 from pognlp.analyze import get_analyzer
 import pognlp.constants as constants
 from pognlp.model.corpus import Corpus
@@ -40,7 +41,10 @@ class Report:
         self.corpus_name = corpus_name
         self.lexicon_names = lexicon_names
         self.complete = complete
-        self.run_in_progress = False
+        self.in_progress = util.Observable[bool](False)
+
+        # None when no run in progress
+        self.progress = util.Observable[int](0)
         self.directory = os.path.join(constants.reports_path, name)
         self.toml_path = os.path.join(self.directory, TOML_NAME)
         self.output_path = os.path.join(self.directory, OUTPUT_NAME)
@@ -80,7 +84,6 @@ class Report:
 
     def run(
         self,
-        progress_cb: Optional[Callable[[int], None]] = None,
         include_body: bool = False,
     ) -> None:
         """Run the report
@@ -88,19 +91,14 @@ class Report:
         Where the magic happens. For each lexicon, get sentiment scores for
         each document in the corpus and count the frequency of each word in the
         lexicon. Store results in TSV files on disk in the report's directory.
-        Optionally call `progress_cb` when any progress is made with an
-        incrementing value (unfortunately, a true "determinate" progress value
-        from 0 to 1 is not available). Optionally include the body of each
-        document in the report's output."""
+        Optionally include the body of each document in the report's output."""
 
-        self.run_in_progress = False
+        self.in_progress.set(True)
 
         # Reset `complete` status in case we're re-running the report
         self.complete = False
 
         corpus = Corpus.load(self.corpus_name)
-
-        progress = 0
 
         output_fieldnames = [*corpus.document_metadata_fields]
         analyzers: Dict[str, SentimentIntensityAnalyzer] = {}
@@ -143,9 +141,6 @@ class Report:
             output_fieldnames.append(f"{lexicon_name} compound")
             if not isinstance(lexicon, DefaultLexicon):
                 for word in lexicon.words:
-                    progress += 1
-                    if progress_cb is not None:
-                        progress_cb(progress)
                     lemmatized = " ".join(
                         token.lemma_ for token in nlp(word.string)
                     ).lower()
@@ -191,8 +186,7 @@ class Report:
 
                 output_writer.writerow(output_row_dict)
 
-                if progress_cb is not None:
-                    progress_cb(100 * (index // (corpus.document_count or 1)))
+                self.progress.set(int(100 * (index / (corpus.document_count or 1))))
 
             for lexicon_name in self.lexicon_names:
                 for lemma in lexicon_lemmas[lexicon_name]:
@@ -210,6 +204,7 @@ class Report:
                         }
                     )
 
+        self.in_progress.set(False)
         self.complete = True
         self.write()
 

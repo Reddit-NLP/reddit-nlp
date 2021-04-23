@@ -21,10 +21,10 @@ class Corpus(ABC):
     """A set of abstract documents to be analyzed. Should be
     automatically persisted to disk whenever it's mutated."""
 
-    def __init__(self, name: str, compiled: bool = False):
+    def __init__(self, name: str, document_count: int = 0, compiled: bool = False):
         self.name = name
+        self.document_count = document_count
         self.directory = os.path.join(constants.corpora_path, name)
-        self.document_count = 0
         self.toml_path = os.path.join(self.directory, "corpus.toml")
         self.compiled = compiled  # "Compiled" corpora are ready to be analyzed
 
@@ -105,9 +105,10 @@ class RedditCorpus(Corpus):
         subreddits: List[str],
         start_time: datetime.datetime,
         end_time: datetime.datetime,
+        document_count: int = 0,
         compiled: bool = False,
     ):
-        super().__init__(name)
+        super().__init__(name, document_count=document_count)
         self.subreddits = subreddits
         self.start_time = start_time
         self.end_time = end_time
@@ -119,6 +120,7 @@ class RedditCorpus(Corpus):
     def from_dict(corpus_dict: Dict[str, Any]) -> RedditCorpus:
         return RedditCorpus(
             name=corpus_dict["name"],
+            document_count=corpus_dict["document_count"],
             subreddits=corpus_dict["subreddits"],
             start_time=datetime.datetime.fromisoformat(corpus_dict["start_time"]),
             end_time=datetime.datetime.fromisoformat(corpus_dict["end_time"]),

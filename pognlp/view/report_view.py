@@ -37,8 +37,14 @@ class ReportView(tk.Frame):
         self.content.grid(sticky="nsew")
 
         self.report: Optional[Report] = None
-        self.run_progress: Optional[ttk.Progressbar] = None
-        self.run_in_progress = False
+
+        self.progressbar: Optional[ttk.Progressbar] = None
+        # Updates when progress is made on a report
+
+        self.progress_observer = util.Observer(self.update_progressbar)
+
+        # Updates when a report starts or finishes
+        self.in_progress_observer = util.Observer(self.update_dashboard)
 
         self.controller.current_report.subscribe(self.update_dashboard)
         self.controller.reports.subscribe(self.update_dashboard)
@@ -148,6 +154,7 @@ class ReportView(tk.Frame):
 
         return fig
 
+    @util.in_main_thread
     def update_dashboard(self, _: Any) -> None:
         """Reset the page when the current report changes"""
         frame = self.content.interior
@@ -156,13 +163,20 @@ class ReportView(tk.Frame):
         for widget in frame.winfo_children():
             widget.destroy()
 
+        reports = self.controller.reports.get()
         current_report = self.controller.current_report.get()
 
-        if current_report is None:
+        if current_report is None or current_report not in reports:
             self.report = None
+            self.in_progress_observer.stop()
+            self.progress_observer.stop()
             return
 
-        self.report = self.controller.reports.get()[current_report]
+        self.report = reports[current_report]
+        assert self.report
+
+        self.progress_observer.set_observable(self.report.progress, call=False)
+        self.in_progress_observer.set_observable(self.report.in_progress, call=False)
 
         common.Label(
             frame,
@@ -183,17 +197,17 @@ class ReportView(tk.Frame):
             justify=tk.LEFT,
         ).grid(column=0, row=2, sticky="w")
 
-        self.run_progress = ttk.Progressbar(
-            frame, orient=tk.HORIZONTAL, length=100, mode="indeterminate"
-        )
         run_report_button = common.Button(
             frame,
             self.run_report,
             "Run Report",
         )
 
-        if self.run_in_progress:
-            self.run_progress.grid(column=0, row=3)
+        if self.report.in_progress.get():
+            self.progressbar = ttk.Progressbar(
+                frame, orient=tk.HORIZONTAL, length=100, mode="determinate"
+            )
+            self.progressbar.grid(column=0, row=3)
             return
 
         run_report_button.grid(column=0, row=4)
@@ -240,11 +254,12 @@ class ReportView(tk.Frame):
                 canvas_widget.grid(column=0, row=current_row, sticky="nesw")
                 current_row += 1
 
-    def run_progress_cb(self, progress: int) -> None:
+    @util.in_main_thread
+    def update_progressbar(self, progress: Optional[int]) -> None:
         """Update the progress bar as the report is run"""
-        if self.run_progress is None:
+        if progress is None or self.progressbar is None:
             return
-        self.run_progress["value"] = progress
+        self.progressbar["value"] = progress
 
     def run_report(self) -> None:
         """Start running the report in another thread"""
@@ -254,18 +269,12 @@ class ReportView(tk.Frame):
 
         report = self.report
 
-        self.run_in_progress = True
         self.update_dashboard(None)
 
         def run_and_update() -> None:
             report.run(
-                progress_cb=lambda progress: self.controller.tkt(
-                    self.run_progress_cb, progress
-                )
-                and None,
                 include_body=self.include_body.get(),
             )
-            self.run_in_progress = False
             self.controller.tkt(self.controller.reports.update)
 
         util.run_thread(run_and_update)

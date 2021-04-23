@@ -34,21 +34,21 @@ class HomeView(tk.Frame):
         # top_navbar common
         download_button = common.Button(
             top_frame,
-            command=lambda: controller.set_current_frame("CreateCorpusView"),
+            command=lambda: controller.set_current_frame("CreateCorpusView") and None,
             text="Download New Data",
         )
         download_button.configure(padx=10, pady=10)
 
         create_report_button = common.Button(
             top_frame,
-            command=lambda: controller.set_current_frame("CreateReportView"),
+            command=lambda: controller.set_current_frame("CreateReportView") and None,
             text="Create New Report",
         )
         create_report_button.configure(padx=10, pady=10)
 
         lexicon_button = common.Button(
             top_frame,
-            command=lambda: controller.set_current_frame("CreateLexiconView"),
+            command=lambda: controller.set_current_frame("CreateLexiconView") and None,
             text="Create New Lexicon",
         )
         lexicon_button.configure(padx=10, pady=10)
