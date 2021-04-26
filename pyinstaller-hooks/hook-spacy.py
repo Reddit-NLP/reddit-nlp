@@ -37,4 +37,13 @@ data = collect_all("blis")
 datas += data[0]
 binaries += data[1]
 hiddenimports += data[2]
+
+# ----------------------------- en_core_web_sm -------------------
+
+data = collect_all("en_core_web_sm")
+
+datas += data[0]
+binaries += data[1]
+hiddenimports += data[2]
+
 # This hook file is a bit of a hack - really, all of the libraries should be in seperate hook files. (Eg hook-blis.py with the blis part of the hook)

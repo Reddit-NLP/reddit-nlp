@@ -9,7 +9,8 @@ from typing import Callable, Dict, Iterable, List, Optional
 import csv
 from collections import defaultdict, Counter
 
-import spacy
+# import en_core_web_sm
+# import spacy
 import pandas as pd
 import rtoml as toml
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -129,7 +130,7 @@ class Report:
         total_token_count = 0
 
         # Use Spacy for lemmatization
-        nlp = spacy.load("en_core_web_sm", disable=["parser", "ner"])
+        # nlp = en_core_web_sm.load(disable=["parser", "ner"])
 
         for lexicon_name in self.lexicon_names:
             lexicon = Lexicon.load(lexicon_name)
@@ -141,9 +142,10 @@ class Report:
             output_fieldnames.append(f"{lexicon_name} compound")
             if not isinstance(lexicon, DefaultLexicon):
                 for word in lexicon.words:
-                    lemmatized = " ".join(
-                        token.lemma_ for token in nlp(word.string)
-                    ).lower()
+                    # lemmatized = " ".join(
+                    #     token.lemma_ for token in nlp(word.string)
+                    # ).lower()
+                    lemmatized = word.string.lower()  # :P
                     lexicon_lemmas[lexicon_name].add(lemmatized)
                     all_lexicon_lemmas.add(lemmatized)
 
@@ -162,10 +164,12 @@ class Report:
             frequency_writer.writeheader()
 
             for index, document in enumerate(corpus.iterate_documents()):
-                doc = nlp(document["body"])
-                for token in doc:
+                # doc = nlp(document["body"])
+                # for token in doc:
+                for token in document["body"].split(" "):
                     total_token_count += 1
-                    lemma = token.lemma_.lower()
+                    # lemma = token.lemma_.lower()
+                    lemma = token.lower()
                     if lemma in all_lexicon_lemmas:
                         frequencies[lemma] += 1
 

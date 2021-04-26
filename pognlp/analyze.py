@@ -5,6 +5,7 @@ from typing import Dict, Generator, Union
 
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
+from pognlp.vader_lexicon import VADER_LEXICON
 from pognlp.model.lexicon import DefaultLexicon, Lexicon
 
 AnalysisResult = namedtuple("AnalysisResult", ["document", "score"])
@@ -47,7 +48,7 @@ def get_analyzer(lexicon: Union[Lexicon, DefaultLexicon]) -> SentimentIntensityA
     analyzes documents using that lexicon"""
 
     if isinstance(lexicon, DefaultLexicon):
-        return SentimentIntensityAnalyzer()
+        return CustomSentimentIntensityAnalyzer(VADER_LEXICON)
 
     # turn the custom lexicon into a TSV and pass it to VADER
     lexicon_file_contents = "\n".join(get_lexicon_file_lines(lexicon))

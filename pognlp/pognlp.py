@@ -239,7 +239,7 @@ class App(tk.Tk):
     @staticmethod
     def show_error(error: Exception) -> None:
         """Show an error dialog"""
-        tk.messagebox.showerror("Error", str(error))
+        tk.messagebox.showerror("Error", f"Error: {error}")
 
 
 def main() -> None:
