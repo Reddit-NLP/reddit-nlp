@@ -98,114 +98,120 @@ class Report:
         # Reset `complete` status in case we're re-running the report
         self.complete = False
 
-        corpus = Corpus.load(self.corpus_name)
+        try:
+            corpus = Corpus.load(self.corpus_name)
 
-        output_fieldnames = [*corpus.document_metadata_fields]
-        analyzers: Dict[str, SentimentIntensityAnalyzer] = {}
-        if include_body:
-            output_fieldnames.insert(0, "body")
+            output_fieldnames = [*corpus.document_metadata_fields]
+            analyzers: Dict[str, SentimentIntensityAnalyzer] = {}
+            if include_body:
+                output_fieldnames.insert(0, "body")
 
-        frequencies = Counter[str]()
-        frequency_fieldnames = [
-            "lemmatized word",
-            "lexicon name",
-            "frequency per 10,000",
-        ]
+            frequencies = Counter[str]()
+            frequency_fieldnames = [
+                "lemmatized word",
+                "lexicon name",
+                "frequency per 10,000",
+            ]
 
-        # To get a meaningful frequency count, lemmatize the words before
-        # counting them. Lemmatization reduces a word to its base form. See
-        # https://en.wikipedia.org/wiki/Lemmatisation.
+            # To get a meaningful frequency count, lemmatize the words before
+            # counting them. Lemmatization reduces a word to its base form. See
+            # https://en.wikipedia.org/wiki/Lemmatisation.
 
-        # Keep track of the set of lexica that each lemma belongs to. Lambda is
-        # necessary here since defaultdict expects a factory function, and
-        # anyways we need a separate instance of set for each key
-        # pylint: disable=unnecessary-lambda
-        lexicon_lemmas = defaultdict(lambda: set())
+            # Keep track of the set of lexica that each lemma belongs to. Lambda is
+            # necessary here since defaultdict expects a factory function, and
+            # anyways we need a separate instance of set for each key
+            # pylint: disable=unnecessary-lambda
+            lexicon_lemmas = defaultdict(lambda: set())
 
-        # the set of all lemmas
-        all_lexicon_lemmas = set()
+            # the set of all lemmas
+            all_lexicon_lemmas = set()
 
-        # the total word count in the corpus for relative frequency counts
-        total_token_count = 0
+            # the total word count in the corpus for relative frequency counts
+            total_token_count = 0
 
-        # Use Spacy for lemmatization
-        nlp = en_core_web_sm.load(disable=["parser", "ner"])
-
-        for lexicon_name in self.lexicon_names:
-            lexicon = Lexicon.load(lexicon_name)
-            analyzer = get_analyzer(lexicon)
-            analyzers[lexicon_name] = analyzer
-            output_fieldnames.append(f"{lexicon_name} positive")
-            output_fieldnames.append(f"{lexicon_name} neutral")
-            output_fieldnames.append(f"{lexicon_name} negative")
-            output_fieldnames.append(f"{lexicon_name} compound")
-            if not isinstance(lexicon, DefaultLexicon):
-                for word in lexicon.words:
-                    lemmatized = " ".join(
-                        token.lemma_ for token in nlp(word.string)
-                    ).lower()
-                    lexicon_lemmas[lexicon_name].add(lemmatized)
-                    all_lexicon_lemmas.add(lemmatized)
-
-        # Open both output TSV files for writing
-        with open(self.output_path, "w") as output_file, open(
-            self.frequency_path, "w"
-        ) as frequency_file:
-            output_writer = csv.DictWriter(
-                output_file, fieldnames=output_fieldnames, delimiter=DELIMITER
-            )
-            output_writer.writeheader()
-
-            frequency_writer = csv.DictWriter(
-                frequency_file, fieldnames=frequency_fieldnames, delimiter=DELIMITER
-            )
-            frequency_writer.writeheader()
-
-            for index, document in enumerate(corpus.iterate_documents()):
-                doc = nlp(document["body"])
-                for token in doc:
-                    total_token_count += 1
-                    lemma = token.lemma_.lower()
-                    if lemma in all_lexicon_lemmas:
-                        frequencies[lemma] += 1
-
-                output_row_dict = {
-                    field: document[field] for field in corpus.document_metadata_fields
-                }
-                if include_body:
-                    sanitized_body = (
-                        document["body"].replace("\n", " ").replace("\t", " ")
-                    )
-                    output_row_dict["body"] = sanitized_body
-                for lexicon_name in self.lexicon_names:
-                    scores = analyzers[lexicon_name].polarity_scores(document["body"])
-                    output_row_dict[f"{lexicon_name} positive"] = scores["pos"]
-                    output_row_dict[f"{lexicon_name} neutral"] = scores["neu"]
-                    output_row_dict[f"{lexicon_name} negative"] = scores["neg"]
-                    output_row_dict[f"{lexicon_name} compound"] = scores["compound"]
-
-                output_writer.writerow(output_row_dict)
-
-                self.progress.set(int(100 * (index / (corpus.document_count or 1))))
+            # Use Spacy for lemmatization
+            nlp = en_core_web_sm.load(disable=["parser", "ner"])
 
             for lexicon_name in self.lexicon_names:
-                for lemma in lexicon_lemmas[lexicon_name]:
-                    try:
-                        relative_frequency = (
-                            frequencies[lemma] * 10000 / total_token_count
-                        )
-                    except ZeroDivisionError:
-                        relative_frequency = 0
-                    frequency_writer.writerow(
-                        {
-                            "lemmatized word": lemma,
-                            "lexicon name": lexicon_name,
-                            "frequency per 10,000": relative_frequency,
-                        }
-                    )
+                lexicon = Lexicon.load(lexicon_name)
+                analyzer = get_analyzer(lexicon)
+                analyzers[lexicon_name] = analyzer
+                output_fieldnames.append(f"{lexicon_name} positive")
+                output_fieldnames.append(f"{lexicon_name} neutral")
+                output_fieldnames.append(f"{lexicon_name} negative")
+                output_fieldnames.append(f"{lexicon_name} compound")
+                if not isinstance(lexicon, DefaultLexicon):
+                    for word in lexicon.words:
+                        lemmatized = " ".join(
+                            token.lemma_ for token in nlp(word.string)
+                        ).lower()
+                        lexicon_lemmas[lexicon_name].add(lemmatized)
+                        all_lexicon_lemmas.add(lemmatized)
 
-        self.in_progress.set(False)
+            # Open both output TSV files for writing
+            with open(self.output_path, "w") as output_file, open(
+                self.frequency_path, "w"
+            ) as frequency_file:
+                output_writer = csv.DictWriter(
+                    output_file, fieldnames=output_fieldnames, delimiter=DELIMITER
+                )
+                output_writer.writeheader()
+
+                frequency_writer = csv.DictWriter(
+                    frequency_file, fieldnames=frequency_fieldnames, delimiter=DELIMITER
+                )
+                frequency_writer.writeheader()
+
+                for index, document in enumerate(corpus.iterate_documents()):
+                    doc = nlp(document["body"])
+                    for token in doc:
+                        total_token_count += 1
+                        lemma = token.lemma_.lower()
+                        if lemma in all_lexicon_lemmas:
+                            frequencies[lemma] += 1
+
+                    output_row_dict = {
+                        field: document[field]
+                        for field in corpus.document_metadata_fields
+                    }
+                    if include_body:
+                        sanitized_body = (
+                            document["body"].replace("\n", " ").replace("\t", " ")
+                        )
+                        output_row_dict["body"] = sanitized_body
+                    for lexicon_name in self.lexicon_names:
+                        scores = analyzers[lexicon_name].polarity_scores(
+                            document["body"]
+                        )
+                        output_row_dict[f"{lexicon_name} positive"] = scores["pos"]
+                        output_row_dict[f"{lexicon_name} neutral"] = scores["neu"]
+                        output_row_dict[f"{lexicon_name} negative"] = scores["neg"]
+                        output_row_dict[f"{lexicon_name} compound"] = scores["compound"]
+
+                    output_writer.writerow(output_row_dict)
+
+                    self.progress.set(int(100 * (index / (corpus.document_count or 1))))
+
+                for lexicon_name in self.lexicon_names:
+                    for lemma in lexicon_lemmas[lexicon_name]:
+                        try:
+                            relative_frequency = (
+                                frequencies[lemma] * 10000 / total_token_count
+                            )
+                        except ZeroDivisionError:
+                            relative_frequency = 0
+                        frequency_writer.writerow(
+                            {
+                                "lemmatized word": lemma,
+                                "lexicon name": lexicon_name,
+                                "frequency per 10,000": relative_frequency,
+                            }
+                        )
+        finally:
+            self.in_progress.set(False)
+
         self.complete = True
+
         self.write()
 
     def get_results(self) -> pd.DataFrame:

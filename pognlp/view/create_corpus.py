@@ -199,7 +199,7 @@ class CreateCorpusView(tk.Frame):
                 self.controller.tkt(self.controller.on_corpus_complete)
                 self.controller.tkt(self.reset)
             except Exception as error:
-                tk.messagebox.showerror("Error downloading!", str(error))
+                tk.messagebox.showerror("Error", f"Error downloading corpus: {error}")
                 corpus.delete()
 
             finally:

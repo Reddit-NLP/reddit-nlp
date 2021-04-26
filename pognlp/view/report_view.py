@@ -277,9 +277,13 @@ class ReportView(tk.Frame):
         self.update_dashboard(None)
 
         def run_and_update() -> None:
-            report.run(
-                include_body=self.include_body.get(),
-            )
+            try:
+                report.run(
+                    include_body=self.include_body.get(),
+                )
+            except Exception as error:
+                tk.messagebox.showerror("Error", f"Error running report: {error}")
+
             self.controller.tkt(self.controller.reports.update)
 
         util.run_thread(run_and_update)

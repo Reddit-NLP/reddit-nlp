@@ -1,6 +1,6 @@
 """Main entry point, GUI setup, and root-level controller"""
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import rtoml as toml
 from tkthread import tk, TkThread
@@ -238,10 +238,9 @@ class App(tk.Tk):
         )
         lexicon.delete()
 
-    @staticmethod
-    def show_error(error: Exception, *_: Any) -> None:
+    def show_error(self, etype: Type[Exception], error: Exception, *args: Any) -> None:
         """Show an error dialog"""
-        tk.messagebox.showerror("Error", f"Error: {str(error)}")
+        tk.messagebox.showerror("Error", f"Unexpected error: {str(error)}")
 
 
 def main() -> None:
