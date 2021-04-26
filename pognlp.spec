@@ -1,11 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import platform
 
 block_cipher = None
 
 
 a = Analysis(['pognlp/pognlp.py'],
-             pathex=['/home/evan/git/reddit-nlp'],
              binaries=[],
              datas=[],
              hiddenimports=[
@@ -45,3 +45,9 @@ exe = EXE(pyz,
           upx_exclude=[],
           runtime_tmpdir=None,
           console=False )
+
+if platform.system() == "Darwin":
+	app = BUNDLE(exe,
+		     name='pognlp.app',
+		     icon=None,
+		     bundle_identifier=None)
