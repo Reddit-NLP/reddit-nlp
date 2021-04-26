@@ -237,7 +237,7 @@ class App(tk.Tk):
         lexicon.delete()
 
     @staticmethod
-    def show_error(error: Exception) -> None:
+    def show_error(error: Exception, *_: Any) -> None:
         """Show an error dialog"""
         tk.messagebox.showerror("Error", f"Error: {error}")
 
