@@ -55,7 +55,7 @@ class Lexicon:
             return Lexicon(name=name, **toml.load(toml_file))
 
     def write(self) -> None:
-        """Serialize and write the lexicon to disk"""
+        """Serialize and write the lexicon to disk as a TOML file"""
         if not os.path.exists(self.directory):
             os.makedirs(self.directory, exist_ok=True)
         lexicon_dict = {

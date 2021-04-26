@@ -42,7 +42,7 @@ class Corpus(ABC):
 
     @abstractmethod
     def write(self) -> None:
-        """Serialize self and write to disk"""
+        """Serialize self and write it to disk as a TOML file"""
 
     @staticmethod
     @abstractmethod
@@ -57,9 +57,9 @@ class Corpus(ABC):
             corpus_dict = toml.load(toml_file)
 
             corpus_by_type = {corpus.corpus_type: corpus for corpus in (RedditCorpus,)}
-            corpus_cls = corpus_by_type[corpus_dict["type"]]
+            corpus_class = corpus_by_type[corpus_dict["type"]]
             del corpus_dict["type"]
-            return corpus_cls.from_dict({"name": name, **corpus_dict})
+            return corpus_class.from_dict({"name": name, **corpus_dict})
 
     @staticmethod
     def ls() -> Iterable[str]:
@@ -177,6 +177,7 @@ class RedditCorpus(Corpus):
 
         progress = 0
         for subreddit in self.subreddits:
+            # Collect all comments matching the search parameters in a list
             for comment in api.search_comments(
                 after=start_epoch, before=end_epoch, subreddit=subreddit
             ):
@@ -186,7 +187,9 @@ class RedditCorpus(Corpus):
                     progress_cb(progress)
 
         if not comments:
-            raise ValueError("No comments found.")
+            raise ValueError(
+                "No comments found. Double-check your search parameters and API credentials."
+            )
 
         self.document_count = len(comments)
 

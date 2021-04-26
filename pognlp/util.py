@@ -91,7 +91,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 def in_main_thread(func: F) -> F:
-    """Decorate an instance method of a views such that it is always executed
+    """Decorate an instance method of a view such that it is always executed
     on the main thread using tkthread."""
 
     def wrapper(self, *args, **kwargs):  # type: ignore

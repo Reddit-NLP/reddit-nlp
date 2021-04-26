@@ -58,11 +58,16 @@ class ReportView(tk.Frame):
 
         df["timestamp"] = pd.to_datetime(df["timestamp"])
 
+        time_range = df.max()["timestamp"] - df.min()["timestamp"]
+
+        # Round to 1 hour or else matplotlib will hang and eat all your memory!
+        resample_window = (time_range / 15).round("1H")
+
         # Resample the timeseries to smooth it out and interpolate missing data
         if len(df) > 20:
             df = (
                 df.set_index("timestamp")
-                .resample("6H")
+                .resample(resample_window)
                 .mean()
                 .interpolate("linear")
                 .reset_index()

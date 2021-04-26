@@ -96,6 +96,7 @@ class App(tk.Tk):
         self.current_report = util.Observable[Optional[str]](None)
         self.current_lexicon = util.Observable[Optional[str]](None)
 
+        # Try to load last-used Reddit API credentials from settings.toml
         try:
             with open(constants.settings_path, "r") as settings_file:
                 settings = toml.load(settings_file)
@@ -106,6 +107,7 @@ class App(tk.Tk):
             }
         self.settings = util.Observable[Dict[str, Any]](settings)
 
+        # Write new settings.toml to disk whenever settings is updated
         def persist_settings(settings: Dict[str, Any]) -> None:
             with open(constants.settings_path, "w") as settings_file:
                 toml.dump(settings, settings_file)
@@ -239,7 +241,7 @@ class App(tk.Tk):
     @staticmethod
     def show_error(error: Exception, *_: Any) -> None:
         """Show an error dialog"""
-        tk.messagebox.showerror("Error", f"Error: {error}")
+        tk.messagebox.showerror("Error", f"Error: {str(error)}")
 
 
 def main() -> None:
