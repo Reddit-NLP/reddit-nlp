@@ -2,7 +2,7 @@
 
 ## Introduction
 
-PogNLP was developed to help CDC researchers identify risk and protective factors of violence in online communities, with a focus on gaming-related communities. It can download comment data from Reddit and analyze them using VADER, a dictionary-based sentiment analyzer. The lexicon used by VADER can be changed in order to target certain types of violence or refine the search to identify violence more effectively. The results of the analysis can be exported as a TSV file and processed using another application, like Excel.
+PogNLP was developed to help CDC researchers identify risk and protective factors of youth violence in online communities, with a focus on gaming-related communities. It can download comment data from Reddit and analyze them using VADER, a dictionary-based sentiment analyzer. The lexicon used by VADER can be changed in order to target certain types of violence or refine the search to identify violence more effectively. The results of the analysis can be exported as a TSV file and processed using another application, like Excel.
 
 ## Release Notes
 
@@ -12,6 +12,7 @@ New Features
 - Allows comment data to be downloaded from Reddit
 - Allows creation of custom lexica (dictionaries) to be created for the sentiment analysis algorithm
 - Can run the sentiment analysis algorithm on downloaded data using created lexica and export the results
+- Has a progress bar to indicate progress of download or report creation
 
 Bug Fixes
 
@@ -34,7 +35,7 @@ Downloads for GNU/Linux and Windows are available for download in the [Releases 
 
 2. Download the application from the [Releases section](https://github.com/Reddit-NLP/reddit-nlp/releases) and run it. Your operating system may warn that the executable is unsigned or untrustworthy.
 
-3. Start by downloading a new corpus of data from Reddit, either by clicking the "Download New Data" button on the home screen or by clicking the "New Reddit Corpus" button on the "Corpora" screen. Enter the start and end dates for your search in the fields provided. A format like "April 4 2021" works best, but it should be able to understand most date and time formats. Next, enter the list of subreddit names you'd like to search (without "/r/", just the names). Enter your Reddit API credentials from earlier. Finally, enter a name for your corpus and hit "Download". The progress bar shown may not accurately represent the state of the download, since we won't know how many comments there are until we've finished searching. Downloading comments from many subreddits or over a large time range may take a long time. After the download finishes, you'll be redirected to a list of all downloaded corpora.
+3. Start by downloading a new corpus of data from Reddit, either by clicking the "Download New Data" button on the home screen or by clicking the "New Reddit Corpus" button on the "Corpora" screen. Enter the start and end dates for your search in the fields provided. A format like "April 4 2021" works best, but it should be able to understand most date and time formats. Inserting specific hours of the day to indicate time is optional and up to the user's discretion. Next, enter the list of subreddit names you'd like to search (without "/r/", just the names), one reddit thread per line. Enter your Reddit API credentials from earlier. Finally, enter a name for your corpus and hit "Download". The progress bar shown may not accurately represent the state of the download, since we won't know how many comments there are until we've finished searching. Downloading comments from many subreddits or over a large time range may take a long time. After the download finishes, you'll be redirected to a list of all downloaded corpora.
 
 4. Create a lexicon to analyze the corpus with. A lexicon is a set of words paired with their ground-truth sentiment values. For more information about lexica and methodologies for creating good ones, refer to the [VADER Readme](https://github.com/cjhutto/vaderSentiment). Click the "Lexica" tab in the sidebar and click "New lexicon". Enter a name for the lexicon and enter a list of word/sentiment score pairs separated by a semicolon, one per line. Click "Confirm Selections".
 
