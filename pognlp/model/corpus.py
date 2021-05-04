@@ -53,7 +53,7 @@ class Corpus(ABC):
     def load(name: str) -> Corpus:
         """Load a corpus from disk given its name"""
         toml_path = os.path.join(constants.corpora_path, name, "corpus.toml")
-        with open(toml_path) as toml_file:
+        with open(toml_path, encoding="utf-8") as toml_file:
             corpus_dict = toml.load(toml_file)
 
             corpus_by_type = {corpus.corpus_type: corpus for corpus in (RedditCorpus,)}
@@ -138,7 +138,7 @@ class RedditCorpus(Corpus):
             "document_count": self.document_count,
             "compiled": self.compiled,
         }
-        with open(self.toml_path, "w") as toml_file:
+        with open(self.toml_path, "w", encoding="utf-8") as toml_file:
             toml.dump(corpus_dict, toml_file)
 
     def compile(

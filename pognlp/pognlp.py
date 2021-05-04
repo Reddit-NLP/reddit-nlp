@@ -98,7 +98,7 @@ class App(tk.Tk):
 
         # Try to load last-used Reddit API credentials from settings.toml
         try:
-            with open(constants.settings_path, "r") as settings_file:
+            with open(constants.settings_path, "r", encoding="utf-8") as settings_file:
                 settings = toml.load(settings_file)
         except (FileNotFoundError, toml.TomlParsingError):
             settings = {
@@ -109,7 +109,7 @@ class App(tk.Tk):
 
         # Write new settings.toml to disk whenever settings is updated
         def persist_settings(settings: Dict[str, Any]) -> None:
-            with open(constants.settings_path, "w") as settings_file:
+            with open(constants.settings_path, "w", encoding="utf-8") as settings_file:
                 toml.dump(settings, settings_file)
 
         self.settings.subscribe(persist_settings, call=False)

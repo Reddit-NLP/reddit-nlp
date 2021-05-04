@@ -51,7 +51,7 @@ class Lexicon:
         if name == DefaultLexicon.name:
             return DefaultLexicon()
         toml_path = os.path.join(constants.lexica_path, name, TOML_NAME)
-        with open(toml_path) as toml_file:
+        with open(toml_path, encoding="utf-8") as toml_file:
             return Lexicon(name=name, **toml.load(toml_file))
 
     def write(self) -> None:
@@ -61,7 +61,7 @@ class Lexicon:
         lexicon_dict = {
             "words": [(word[0], word[1]) for word in self.words],
         }
-        with open(self.toml_path, "w") as toml_file:
+        with open(self.toml_path, "w", encoding="utf-8") as toml_file:
             toml.dump(lexicon_dict, toml_file)
 
     def delete(self) -> None:

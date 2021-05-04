@@ -63,7 +63,7 @@ class Report:
     def load(name: str) -> Report:
         """Load a report from disk given its name"""
         toml_path = os.path.join(constants.reports_path, name, TOML_NAME)
-        with open(toml_path) as toml_file:
+        with open(toml_path, encoding="utf-8") as toml_file:
             return Report(name=name, **toml.load(toml_file))
 
     def write(self) -> None:
@@ -75,7 +75,7 @@ class Report:
             "lexicon_names": self.lexicon_names,
             "complete": self.complete,
         }
-        with open(self.toml_path, "w") as toml_file:
+        with open(self.toml_path, "w", encoding="utf-8") as toml_file:
             toml.dump(report_dict, toml_file)
 
     def delete(self) -> None:
@@ -149,8 +149,8 @@ class Report:
                         all_lexicon_lemmas.add(lemmatized)
 
             # Open both output TSV files for writing
-            with open(self.output_path, "w") as output_file, open(
-                self.frequency_path, "w"
+            with open(self.output_path, "w", encoding="utf-8") as output_file, open(
+                self.frequency_path, "w", encoding="utf-8"
             ) as frequency_file:
                 output_writer = csv.DictWriter(
                     output_file, fieldnames=output_fieldnames, delimiter=DELIMITER
